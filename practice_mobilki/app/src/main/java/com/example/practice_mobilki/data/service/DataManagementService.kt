@@ -1,10 +1,11 @@
 // data/service/DataManagementService.kt
 
-package com.example.shoestore.data.service
+package com.example.practice_mobilki.data.service
 
 import com.example.practice_mobilki.data.model.ProductResponse
-import com.example.shoestore.data.model.InsertProfileRequest
-import com.example.shoestore.data.model.ProfileResponse
+import com.example.practice_mobilki.data.model.InsertProfileRequest
+import com.example.practice_mobilki.data.model.ProfileResponse
+import com.example.practice_mobilki.data.service.API_KEY
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET

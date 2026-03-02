@@ -1,9 +1,9 @@
 package com.example.practice_mobilki.data
 
 
-import com.example.shoestore.data.service.DataManagementService
+import com.example.practice_mobilki.data.service.DataManagementService
 import com.example.shoestore.data.service.StorageService
-import com.example.shoestore.data.service.UserManagementService
+import com.example.practice_mobilki.data.service.UserManagementService
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

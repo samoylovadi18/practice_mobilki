@@ -1,5 +1,4 @@
-package com.example.shoestore.data.model
-
+package com.example.practice_mobilki.data.model
 import com.google.gson.annotations.SerializedName
 
 data class ProfileResponse(

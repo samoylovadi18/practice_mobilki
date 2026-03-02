@@ -1,12 +1,13 @@
-package com.example.shoestore.data.service
+package com.example.practice_mobilki.data.service
 
-import com.example.myapplication.data.model.VerifyOtpRequest
-import com.example.myapplication.data.model.VerifyOtpResponse
-import com.example.shoestore.data.model.ResendOTPRequest
-import com.example.shoestore.data.model.SignInRequest
-import com.example.shoestore.data.model.SignInResponse
-import com.example.shoestore.data.model.SignUpRequest
-import com.example.shoestore.data.model.SignUpResponse
+
+import com.example.practice_mobilki.data.model.ResendOTPRequest
+import com.example.practice_mobilki.data.model.SignInRequest
+import com.example.practice_mobilki.data.model.SignInResponse
+import com.example.practice_mobilki.data.model.SignUpRequest
+import com.example.practice_mobilki.data.model.SignUpResponse
+import com.example.practice_mobilki.data.model.VerifyOtpRequest
+import com.example.practice_mobilki.data.model.VerifyOtpResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Headers

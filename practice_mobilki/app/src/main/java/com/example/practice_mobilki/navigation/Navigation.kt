@@ -1,4 +1,4 @@
-package com.example.practice_mobilki.navigation  // ВАЖНО: правильный пакет
+package com.example.practice_mobilki.navigation
 
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -11,15 +11,19 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.practice_mobilki.ui.screens.SignUpScreen  // импорт экрана
+import com.example.practice_mobilki.data.model.SignUpRequest
+import com.example.practice_mobilki.ui.screens.SignUpScreen
 import com.example.practice_mobilki.ui.viewmodel.SignUpViewModel
 
 // Класс для хранения маршрутов
@@ -50,21 +54,70 @@ fun AppNavHost(
         // Экран регистрации
         composable(route = Screen.SignUp.route) {
             val viewModel: SignUpViewModel = viewModel()
+            val showDialog by viewModel.showDialog
+            val dialogText by viewModel.dialogText
+            val dialogTitle by viewModel.dialogTitle
+            val isSignUpSuccessful by viewModel.isSignUpSuccessful
+            val context = LocalContext.current
 
-            SignUpScreen(
-                viewModel = viewModel,
-                onSignUpSuccess = {
+            // Следим за успешной регистрацией
+            LaunchedEffect(isSignUpSuccessful) {
+                if (isSignUpSuccessful) {
+                    // Сбрасываем состояние перед навигацией
+                    viewModel.resetSignUpState()
+                    // Переходим на главный экран
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.SignUp.route) { inclusive = true }
                     }
-                },
-                toSignInScreen = {
-                    navController.navigate(Screen.SignIn.route)
-                },
-                onBack = {
+                }
+            }
+
+            SignUpScreen(
+                onBackClick = {
                     navController.popBackStack()
+                },
+                onSignUpClick = { userName, email, password, isCheckboxChecked ->
+                    if (isCheckboxChecked) {
+                        // Используем только email и password, так как в SignUpRequest нет name
+                        val signUpRequest = SignUpRequest(
+                            email = email,
+                            password = password
+                        )
+                        viewModel.signUp(signUpRequest, context)
+
+                        // Здесь можно сохранить userName в SharedPreferences или другом месте,
+                        // если нужно сохранить имя пользователя
+                        saveUserName(context, userName)
+                    }
+                },
+                onSignInClick = {
+                    navController.navigate(Screen.SignIn.route)
                 }
             )
+
+            // Диалог с ошибкой (если нужно показать)
+            if (showDialog) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = {
+                        viewModel.hideDialog()
+                    },
+                    title = {
+                        Text(text = dialogTitle)
+                    },
+                    text = {
+                        Text(text = dialogText)
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                viewModel.hideDialog()
+                            }
+                        ) {
+                            Text("OK")
+                        }
+                    }
+                )
+            }
         }
 
         // Экран входа
@@ -104,15 +157,45 @@ fun AppNavHost(
     }
 }
 
+// Вспомогательная функция для сохранения имени пользователя
+private fun saveUserName(context: android.content.Context, userName: String) {
+    val sharedPreferences = context.getSharedPreferences(
+        "my_app_preferences",
+        android.content.Context.MODE_PRIVATE
+    )
+    sharedPreferences.edit().putString("userName", userName).apply()
+}
+
 // Заглушки (оставьте их в конце файла)
 @Composable
 fun SignInPlaceholder(onSignInSuccess: () -> Unit, onSignUpClick: () -> Unit, onBack: () -> Unit) {
     Scaffold { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Text("Sign In Screen")
-            Button(onClick = onSignInSuccess, modifier = Modifier.padding(8.dp)) { Text("Войти") }
-            Button(onClick = onSignUpClick, modifier = Modifier.padding(8.dp)) { Text("Перейти на регистрацию") }
-            Button(onClick = onBack, modifier = Modifier.padding(8.dp)) { Text("Назад") }
+            Button(
+                onClick = onSignInSuccess,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Войти")
+            }
+            Button(
+                onClick = onSignUpClick,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Перейти на регистрацию")
+            }
+            Button(
+                onClick = onBack,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Назад")
+            }
         }
     }
 }
@@ -120,9 +203,20 @@ fun SignInPlaceholder(onSignInSuccess: () -> Unit, onSignUpClick: () -> Unit, on
 @Composable
 fun HomePlaceholder(onProfileClick: () -> Unit) {
     Scaffold { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Text("Home Screen")
-            Button(onClick = onProfileClick, modifier = Modifier.padding(8.dp)) { Text("Перейти в профиль") }
+            Button(
+                onClick = onProfileClick,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Перейти в профиль")
+            }
         }
     }
 }
@@ -130,9 +224,20 @@ fun HomePlaceholder(onProfileClick: () -> Unit) {
 @Composable
 fun ProfilePlaceholder(onBack: () -> Unit) {
     Scaffold { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
             Text("Profile Screen")
-            Button(onClick = onBack, modifier = Modifier.padding(8.dp)) { Text("Назад") }
+            Button(
+                onClick = onBack,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Назад")
+            }
         }
     }
 }

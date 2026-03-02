@@ -1,4 +1,4 @@
-package com.example.shoestore.ui.screens
+package com.example.practice_mobilki.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

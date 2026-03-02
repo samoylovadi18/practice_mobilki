@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.practice_mobilki.data.RetrofitInstance
-import com.example.shoestore.data.model.SignUpRequest
+import com.example.practice_mobilki.data.model.SignUpRequest
 import kotlinx.coroutines.launch
 
 class SignUpViewModel : ViewModel() {
