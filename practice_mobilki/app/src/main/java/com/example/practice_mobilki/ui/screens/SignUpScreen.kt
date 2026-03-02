@@ -249,7 +249,7 @@ fun SignUpScreen(
             enabled = isCheckboxChecked
         )
 
-        // ⭐ ЗАДАНИЕ 10: Индикация загрузки (ТОЛЬКО ЭТО ДОБАВЛЕНО)
+        // ЗАДАНИЕ 10: Индикация загрузки
         if (isLoading) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "Загрузка...", color = CustomColors.hint)
