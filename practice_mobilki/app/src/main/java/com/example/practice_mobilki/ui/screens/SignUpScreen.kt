@@ -99,8 +99,7 @@ fun SignUpScreen(
                 )
             }
         }
-
-        // Центральная часть с формой
+        
         Spacer(modifier = Modifier.weight(0.5f))
 
         // Заголовки
