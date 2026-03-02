@@ -256,7 +256,6 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Ссылка на вход
         Text(
             text = stringResource(R.string.have_account),
             modifier = Modifier.clickable { toSignInScreen() },
