@@ -235,7 +235,7 @@ fun SignInScreen(
 
         Spacer(modifier = Modifier.height(45.dp))
     }
-
+    //увед
     CustomAlertDialog(
         show = viewModel.showDialog.value,
         onDismiss = { viewModel.hideDialog() },
