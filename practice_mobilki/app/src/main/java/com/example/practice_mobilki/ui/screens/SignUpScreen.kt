@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -221,7 +222,6 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Кнопка регистрации с валидацией
-        // ⭐ ЗАДАНИЕ 6: Кнопка активна только при согласии с условиями (enabled = isCheckboxChecked)
         AccentButton(
             modifier = Modifier
                 .fillMaxWidth()
@@ -246,10 +246,10 @@ fun SignUpScreen(
                     viewModel.signUp(signUpRequest, context)
                 }
             },
-            enabled = isCheckboxChecked // ⭐ КЛЮЧЕВАЯ СТРОКА: кнопка активна ТОЛЬКО когда чекбокс отмечен
+            enabled = isCheckboxChecked
         )
 
-        // Индикатор загрузки
+        // ⭐ ЗАДАНИЕ 10: Индикация загрузки (ТОЛЬКО ЭТО ДОБАВЛЕНО)
         if (isLoading) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "Загрузка...", color = CustomColors.hint)
@@ -270,35 +270,23 @@ fun SignUpScreen(
 }
 
 /**
- * Функция валидации email по заданному паттерну:
- * - имя и домен могут состоять только из маленьких букв и цифр
- * - старший домен только из символов количеством больше двух
+ * Функция валидации email по заданному паттерну
  */
 fun isValidEmail(email: String): Boolean {
-    // Регулярное выражение для проверки email по заданным требованиям
-    // ^[a-z0-9]+@[a-z0-9]+\.[a-z]{3,}$
-    // - имя: одна или более маленьких букв или цифр
-    // - домен: одна или более маленьких букв или цифр
-    // - старший домен: только буквы, минимум 3 символа
     val emailRegex = "^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$".toRegex()
     return email.matches(emailRegex)
 }
 
-// ⭐ ИСПРАВЛЕНО: Создаем отдельный preview без ViewModel
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 private fun SignUpScreenPreview() {
-    // В preview используем заглушку вместо реального ViewModel
     SignUpScreen(
-        viewModel = SignUpViewModelPreview(), // Используем специальный preview ViewModel
+        viewModel = SignUpViewModelPreview(),
         onSignUpSuccess = {},
         toSignInScreen = {},
         onBackClick = {}
     )
 }
 
-// ⭐ Временный ViewModel для preview (не вызывает предупреждение)
-private class SignUpViewModelPreview : SignUpViewModel() {
-    // Пустой класс для preview, который не инициализирует реальные зависимости
-}
+private class SignUpViewModelPreview : SignUpViewModel()
