@@ -1,13 +1,11 @@
 package com.example.practice_mobilki.ui.screens
 
-
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,13 +44,20 @@ import com.example.practice_mobilki.ui.theme.TypographyApplication
 import com.example.practice_mobilki.ui.viewmodel.SignInViewModel
 
 @Composable
-fun SignInScreen(modifier: Modifier = Modifier, viewModel: SignInViewModel, onSignInSuccess: () -> Unit, toSignUpScreen: () -> Unit, onBack: () -> Unit) {
-    var email by remember { mutableStateOf(value = "") }
-    var password by remember { mutableStateOf(value = "") }
-    var isShowPassword by remember { mutableStateOf(value = false) }
+fun SignInScreen(
+    modifier: Modifier = Modifier,
+    viewModel: SignInViewModel,
+    onSignInSuccess: () -> Unit,
+    toSignUpScreen: () -> Unit,
+    onBack: () -> Unit
+) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var isShowPassword by remember { mutableStateOf(false) }
     val isSignInSuccessful by viewModel.isSignInSuccessful
     val context = LocalContext.current
     val isLoading by viewModel.isLoading
+
     LaunchedEffect(isSignInSuccessful) {
         if (isSignInSuccessful) {
             onSignInSuccess()
@@ -64,20 +69,21 @@ fun SignInScreen(modifier: Modifier = Modifier, viewModel: SignInViewModel, onSi
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally
+            .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(24.dp))
+
         Box(modifier = Modifier.fillMaxWidth()) {
             Box(
                 modifier = modifier
                     .size(40.dp)
                     .background(
                         color = CustomColors.background,
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(50)
+                        shape = RoundedCornerShape(50)
                     )
                     .clickable { onBack() },
                 contentAlignment = Alignment.Center
-
             ) {
                 Image(
                     painter = painterResource(R.drawable.back),
@@ -87,20 +93,26 @@ fun SignInScreen(modifier: Modifier = Modifier, viewModel: SignInViewModel, onSi
                 )
             }
         }
+
         Spacer(modifier = Modifier.weight(0.5f))
+
         Text(
             text = stringResource(R.string.hello_again),
             fontSize = 32.sp,
             style = TypographyApplication.headingRegular32
         )
+
         Spacer(modifier = Modifier.height(8.dp))
+
         Text(
             text = stringResource(R.string.fill_details),
             fontSize = 16.sp,
             color = CustomColors.hint,
             style = TypographyApplication.bodyRegular16
         )
+
         Spacer(modifier = Modifier.weight(0.25f))
+
         Column {
             Text(
                 text = stringResource(R.string.email),
@@ -114,7 +126,9 @@ fun SignInScreen(modifier: Modifier = Modifier, viewModel: SignInViewModel, onSi
                 placeholderText = "xyz@gmail.com"
             )
         }
+
         Spacer(modifier = Modifier.height(12.dp))
+
         Column {
             Text(
                 text = stringResource(R.string.password),
@@ -125,7 +139,7 @@ fun SignInScreen(modifier: Modifier = Modifier, viewModel: SignInViewModel, onSi
                 modifier = Modifier.fillMaxWidth(),
                 value = password,
                 onValueChange = { password = it },
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                shape = RoundedCornerShape(14.dp),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = CustomColors.background,
                     focusedContainerColor = CustomColors.background,
@@ -136,17 +150,18 @@ fun SignInScreen(modifier: Modifier = Modifier, viewModel: SignInViewModel, onSi
                 placeholder = { Text(text = "••••••••", color = CustomColors.hint) },
                 trailingIcon = {
                     Icon(
-                        painter = if (isShowPassword) painterResource(R.drawable.eye_open) else painterResource(
-                            R.drawable.eye_close
-                        ),
+                        painter = if (isShowPassword) painterResource(R.drawable.eye_open) else painterResource(R.drawable.eye_close),
                         contentDescription = "An eye",
                         modifier = Modifier.clickable {
                             isShowPassword = !isShowPassword
-                        })
+                        }
+                    )
                 }
             )
         }
+
         Spacer(modifier = Modifier.height(14.dp))
+
         Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = stringResource(R.string.recovery_password),
@@ -155,28 +170,51 @@ fun SignInScreen(modifier: Modifier = Modifier, viewModel: SignInViewModel, onSi
                 style = TypographyApplication.bodyRegular12
             )
         }
+
         Spacer(modifier = Modifier.height(24.dp))
+
+        // Кнопка входа с валидацией
         AccentButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp), text = stringResource(R.string.sign_in), onClick = {
-                if (isValidEmail(email) &&
-                    password.length >= 6
-                ) {
-                    viewModel.signIn(SignInRequest(email, password), context = context)
+                .height(50.dp),
+            text = stringResource(R.string.sign_in),
+            onClick = {
+                if (!validateEmail(email)) {
+                    viewModel.showError(
+                        "Некорректный email. Email должен соответствовать формату: name@domenname.ru (только маленькие буквы и цифры, домен верхнего уровня больше 2 символов)",
+                        "Ошибка валидации"
+                    )
+                } else if (password.length < 6) {
+                    viewModel.showError(
+                        "Пароль должен содержать минимум 6 символов",
+                        "Ошибка валидации"
+                    )
+                } else {
+                    viewModel.signIn(SignInRequest(email, password), context)
                 }
-            })
+            }
+        )
+
         Spacer(modifier = Modifier.weight(1f))
+
         Text(
             text = stringResource(R.string.new_user),
             modifier = Modifier.clickable {
                 toSignUpScreen()
-            }, style = TypographyApplication.bodyRegular16
+            },
+            style = TypographyApplication.bodyRegular16
         )
+
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = if (isLoading) "Loading..." else "", color = CustomColors.hint)
+
+        if (isLoading) {
+            Text(text = "Loading...", color = CustomColors.hint)
+        }
+
         Spacer(modifier = Modifier.height(45.dp))
     }
+
     CustomAlertDialog(
         show = viewModel.showDialog.value,
         onDismiss = { viewModel.hideDialog() },
@@ -185,9 +223,20 @@ fun SignInScreen(modifier: Modifier = Modifier, viewModel: SignInViewModel, onSi
     )
 }
 
+// Функция валидации email 
+fun validateEmail(email: String): Boolean {
+    val pattern = "^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$".toRegex()
+    return pattern.matches(email)
+}
+
 @SuppressLint("ViewModelConstructorInComposable")
 @Preview
 @Composable
 private fun SignInScreenPreview() {
-    SignInScreen(viewModel = SignInViewModel(), onSignInSuccess = {}, toSignUpScreen = {}, onBack = {})
+    SignInScreen(
+        viewModel = SignInViewModel(),
+        onSignInSuccess = {},
+        toSignUpScreen = {},
+        onBack = {}
+    )
 }
