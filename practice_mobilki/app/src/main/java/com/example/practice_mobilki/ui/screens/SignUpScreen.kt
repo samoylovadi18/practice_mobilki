@@ -262,8 +262,6 @@ fun SignUpScreen(
             modifier = Modifier.clickable { toSignInScreen() },
             style = TypographyApplication.bodyRegular16
         )
-
-        // Нижний отступ
         Spacer(modifier = Modifier.height(45.dp))
     }
 }
