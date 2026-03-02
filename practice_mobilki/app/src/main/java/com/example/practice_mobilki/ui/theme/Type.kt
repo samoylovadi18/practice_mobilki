@@ -4,7 +4,10 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.sp
+import com.example.practice_mobilki.R
 
 // Set of Material typography styles to start with
 val Typography = Typography(
@@ -31,4 +34,17 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
+)
+private val fontProvider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms" ,
+    certificates = R.array.com_google_android_gms_fonts_certs
+)
+private val ralewayName = GoogleFont("Raleway")
+val ralewayRegular = FontFamily(
+    Font(
+        googleFont = ralewayName,
+        fontProvider = fontProvider,
+        weight = FontWeight.Normal
+    )
 )

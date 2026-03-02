@@ -10,49 +10,112 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
-)
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 @Composable
-fun Practice_mobilkiTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+fun ShoeStoreTheme(
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val customColors = CustomColors
 
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+    ) {
+        ProvideCustomColors(customColors = customColors) {
+            content()
+        }
+    }
+}
+object TypographyApplication {
+    val headingRegular34 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Normal,
+        fontSize = 34.sp,
+        lineHeight = 40.sp
+    )
+    val headingRegular32 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Normal,
+        fontSize = 32.sp,
+        lineHeight = 38.sp
+    )
+    val headingBold30 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Bold,
+        fontSize = 30.sp,
+        lineHeight = 36.sp
+    )
+    val headingRegular26 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Normal,
+        fontSize = 26.sp,
+        lineHeight = 32.sp
+    )
+    val headingRegular20 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp,
+        lineHeight = 24.sp
+    )
+    val headingSemiBold16 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
+        lineHeight = 20.sp
+    )
+    val subtitleRegular16 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 20.sp
+    )
+    val bodyRegular24 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Normal,
+        fontSize = 24.sp,
+        lineHeight = 28.sp
+    )
+    val bodyRegular20 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp,
+        lineHeight = 24.sp
+    )
+    val bodySemiBold18 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 18.sp,
+        lineHeight = 24.sp
+    )
+    val bodyMedium16 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp,
+        lineHeight = 20.sp
+    )
+    val bodyRegular16 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 20.sp
+    )
+    val bodyMedium14 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Medium,
+        fontSize = 14.sp,
+        lineHeight = 18.sp
+    )
+    val bodyRegular14 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 18.sp
+    )
+    val bodyRegular12 = TextStyle(
+        fontFamily = ralewayRegular,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 16.sp
     )
 }
