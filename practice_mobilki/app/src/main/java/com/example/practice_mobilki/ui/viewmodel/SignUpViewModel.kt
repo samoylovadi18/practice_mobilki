@@ -10,7 +10,7 @@ import com.example.practice_mobilki.data.RetrofitInstance
 import com.example.practice_mobilki.data.model.SignUpRequest
 import kotlinx.coroutines.launch
 
-class SignUpViewModel : ViewModel() {
+open class SignUpViewModel : ViewModel() {
     private val viewModelShowDialog = mutableStateOf(false)
     val showDialog: State<Boolean> = viewModelShowDialog
 

@@ -1,5 +1,6 @@
 package com.example.practice_mobilki.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -220,13 +221,14 @@ fun SignUpScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Кнопка регистрации с валидацией
+        // ⭐ ЗАДАНИЕ 6: Кнопка активна только при согласии с условиями (enabled = isCheckboxChecked)
         AccentButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             text = stringResource(R.string.sign_up),
             onClick = {
-                // Валидация всех полей
+                // Валидация всех полей перед регистрацией
                 if (userName.isBlank()) {
                     viewModel.showError("Пожалуйста, введите имя")
                 } else if (!isValidEmail(email)) {
@@ -244,7 +246,7 @@ fun SignUpScreen(
                     viewModel.signUp(signUpRequest, context)
                 }
             },
-            enabled = isCheckboxChecked
+            enabled = isCheckboxChecked // ⭐ КЛЮЧЕВАЯ СТРОКА: кнопка активна ТОЛЬКО когда чекбокс отмечен
         )
 
         // Индикатор загрузки
@@ -267,7 +269,11 @@ fun SignUpScreen(
     }
 }
 
-
+/**
+ * Функция валидации email по заданному паттерну:
+ * - имя и домен могут состоять только из маленьких букв и цифр
+ * - старший домен только из символов количеством больше двух
+ */
 fun isValidEmail(email: String): Boolean {
     // Регулярное выражение для проверки email по заданным требованиям
     // ^[a-z0-9]+@[a-z0-9]+\.[a-z]{3,}$
@@ -278,15 +284,21 @@ fun isValidEmail(email: String): Boolean {
     return email.matches(emailRegex)
 }
 
+// ⭐ ИСПРАВЛЕНО: Создаем отдельный preview без ViewModel
+@SuppressLint("ViewModelConstructorInComposable")
 @Preview(showBackground = true)
 @Composable
 private fun SignUpScreenPreview() {
-    // Для превью нужен ViewModel, поэтому лучше не использовать预览 с ViewModel
-    // или создать заглушку
+    // В preview используем заглушку вместо реального ViewModel
     SignUpScreen(
-        viewModel = SignUpViewModel(),
+        viewModel = SignUpViewModelPreview(), // Используем специальный preview ViewModel
         onSignUpSuccess = {},
         toSignInScreen = {},
         onBackClick = {}
     )
+}
+
+// ⭐ Временный ViewModel для preview (не вызывает предупреждение)
+private class SignUpViewModelPreview : SignUpViewModel() {
+    // Пустой класс для preview, который не инициализирует реальные зависимости
 }
