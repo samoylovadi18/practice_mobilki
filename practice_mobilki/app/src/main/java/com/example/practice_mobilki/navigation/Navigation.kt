@@ -129,7 +129,6 @@ fun AppNavHost(
     }
 }
 
-// Заглушки для других экранов
 @Composable
 fun SignInPlaceholder(
     onSignInSuccess: () -> Unit,
