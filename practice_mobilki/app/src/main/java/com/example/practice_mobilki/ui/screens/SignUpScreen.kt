@@ -270,7 +270,7 @@ fun SignUpScreen(
 }
 
 /**
- * Функция валидации email по заданному паттерну
+ * Функция валидации email
  */
 fun isValidEmail(email: String): Boolean {
     val emailRegex = "^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$".toRegex()
