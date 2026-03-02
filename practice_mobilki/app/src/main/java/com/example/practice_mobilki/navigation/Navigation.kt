@@ -25,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.practice_mobilki.ui.components.CustomAlertDialog
+import com.example.practice_mobilki.ui.screens.ForgotPasswordScreen
 import com.example.practice_mobilki.ui.screens.SignInScreen
 import com.example.practice_mobilki.ui.screens.SignUpScreen
 import com.example.practice_mobilki.ui.viewmodel.SignInViewModel
@@ -34,7 +35,7 @@ import com.example.practice_mobilki.ui.viewmodel.SignUpViewModel
 sealed class Screen(val route: String) {
     data object SignUp : Screen("sign_up")
     data object SignIn : Screen("sign_in")
-    data object ForgotPassword : Screen("forgot_password") // ⭐ НОВЫЙ ЭКРАН
+    data object ForgotPassword : Screen("forgot_password")
     data object Home : Screen("home")
     data object Profile : Screen("profile")
 }
@@ -56,16 +57,14 @@ fun AppNavHost(
         popEnterTransition = { fadeIn(animationSpec = tween(700)) },
         popExitTransition = { fadeOut(animationSpec = tween(700)) }
     ) {
-        // ⭐ ЭКРАН РЕГИСТРАЦИИ
+        // ЭКРАН РЕГИСТРАЦИИ
         composable(route = Screen.SignUp.route) {
             val viewModel: SignUpViewModel = viewModel()
             val isSignUpSuccessful by viewModel.isSignUpSuccessful
 
-            // Следим за успешной регистрацией
             LaunchedEffect(isSignUpSuccessful) {
                 if (isSignUpSuccessful) {
                     viewModel.resetSignUpState()
-                    // Переходим на экран входа
                     navController.navigate(Screen.SignIn.route) {
                         popUpTo(Screen.SignUp.route) { inclusive = true }
                     }
@@ -83,7 +82,6 @@ fun AppNavHost(
                 }
             )
 
-            // Диалог с ошибкой
             if (viewModel.showDialog.value) {
                 CustomAlertDialog(
                     show = viewModel.showDialog.value,
@@ -94,12 +92,11 @@ fun AppNavHost(
             }
         }
 
-        // ⭐ ЭКРАН ВХОДА (обновлен с поддержкой ForgotPassword)
+        // ЭКРАН ВХОДА
         composable(route = Screen.SignIn.route) {
             val viewModel: SignInViewModel = viewModel()
             val isSignInSuccessful by viewModel.isSignInSuccessful
 
-            // Следим за успешным входом
             LaunchedEffect(isSignInSuccessful) {
                 if (isSignInSuccessful) {
                     viewModel.resetSignInState()
@@ -115,7 +112,7 @@ fun AppNavHost(
                 toSignUpScreen = {
                     navController.navigate(Screen.SignUp.route)
                 },
-                toForgotPasswordScreen = { // ⭐ ЗАДАНИЕ 16: Переход на Forgot Password
+                toForgotPasswordScreen = {
                     navController.navigate(Screen.ForgotPassword.route)
                 },
                 onBack = {
@@ -123,7 +120,6 @@ fun AppNavHost(
                 }
             )
 
-            // Диалог с ошибкой
             if (viewModel.showDialog.value) {
                 CustomAlertDialog(
                     show = viewModel.showDialog.value,
@@ -134,16 +130,21 @@ fun AppNavHost(
             }
         }
 
-        // ⭐ НОВЫЙ ЭКРАН: Восстановление пароля
+        // ЭКРАН ВОССТАНОВЛЕНИЯ ПАРОЛЯ
         composable(route = Screen.ForgotPassword.route) {
-            ForgotPasswordPlaceholder(
-                onBack = {
+            ForgotPasswordScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onSendClick = { email ->
+                    // Здесь будет логика отправки email для восстановления
+                    // Пока просто возвращаемся назад
                     navController.popBackStack()
                 }
             )
         }
 
-        // ⭐ ГЛАВНЫЙ ЭКРАН
+        // ГЛАВНЫЙ ЭКРАН
         composable(route = Screen.Home.route) {
             HomePlaceholder(
                 onProfileClick = {
@@ -152,7 +153,7 @@ fun AppNavHost(
             )
         }
 
-        // ⭐ ЭКРАН ПРОФИЛЯ
+        // ЭКРАН ПРОФИЛЯ
         composable(route = Screen.Profile.route) {
             ProfilePlaceholder(
                 onBack = {
@@ -163,78 +164,7 @@ fun AppNavHost(
     }
 }
 
-// ⭐ ВРЕМЕННЫЙ ЭКРАН ДЛЯ FORGOT PASSWORD (замените на реальный позже)
-@Composable
-fun ForgotPasswordPlaceholder(
-    onBack: () -> Unit
-) {
-    Scaffold { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Восстановление пароля",
-                fontSize = 24.sp
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Здесь будет экран восстановления пароля",
-                fontSize = 16.sp
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick = onBack,
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text("Назад")
-            }
-        }
-    }
-}
-
-// ⭐ ЗАГЛУШКА ДЛЯ SIGN IN (больше не используется, но оставлена для совместимости)
-@Composable
-fun SignInPlaceholder(
-    onSignInSuccess: () -> Unit,
-    onSignUpClick: () -> Unit,
-    onBack: () -> Unit
-) {
-    Scaffold { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text("Sign In Screen")
-            Button(
-                onClick = onSignInSuccess,
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text("Войти")
-            }
-            Button(
-                onClick = onSignUpClick,
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text("Перейти на регистрацию")
-            }
-            Button(
-                onClick = onBack,
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text("Назад")
-            }
-        }
-    }
-}
-
-// ⭐ ЗАГЛУШКА ДЛЯ HOME
+// ЗАГЛУШКА ДЛЯ HOME
 @Composable
 fun HomePlaceholder(onProfileClick: () -> Unit) {
     Scaffold { paddingValues ->
@@ -245,7 +175,11 @@ fun HomePlaceholder(onProfileClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Home Screen")
+            Text(
+                text = "Home Screen",
+                fontSize = 20.sp
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = onProfileClick,
                 modifier = Modifier.padding(8.dp)
@@ -256,7 +190,7 @@ fun HomePlaceholder(onProfileClick: () -> Unit) {
     }
 }
 
-// ⭐ ЗАГЛУШКА ДЛЯ PROFILE
+// ЗАГЛУШКА ДЛЯ PROFILE
 @Composable
 fun ProfilePlaceholder(onBack: () -> Unit) {
     Scaffold { paddingValues ->
@@ -267,7 +201,11 @@ fun ProfilePlaceholder(onBack: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Profile Screen")
+            Text(
+                text = "Profile Screen",
+                fontSize = 20.sp
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = onBack,
                 modifier = Modifier.padding(8.dp)
