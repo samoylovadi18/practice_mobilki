@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -39,19 +40,32 @@ import com.example.practice_mobilki.ui.components.CustomCheckbox
 import com.example.practice_mobilki.ui.components.CustomTextField
 import com.example.practice_mobilki.ui.theme.CustomColors
 import com.example.practice_mobilki.ui.theme.TypographyApplication
+import com.example.practice_mobilki.ui.viewmodel.SignUpViewModel
 
 @Composable
 fun SignUpScreen(
-    modifier: Modifier = Modifier,
+    viewModel: SignUpViewModel,
+    onSignUpSuccess: () -> Unit,
+    toSignInScreen: () -> Unit,
     onBackClick: () -> Unit = {},
-    onSignUpClick: (String, String, String, Boolean) -> Unit = { _, _, _, _ -> },
-    onSignInClick: () -> Unit = {}
+    modifier: Modifier = Modifier
 ) {
     var userName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isCheckboxChecked by remember { mutableStateOf(false) }
     var isPasswordVisible by remember { mutableStateOf(false) }
+    val isLoading by viewModel.isLoading
+    val isSignUpSuccessful by viewModel.isSignUpSuccessful
+    val context = LocalContext.current
+
+    // Следим за успешной регистрацией
+    androidx.compose.runtime.LaunchedEffect(isSignUpSuccessful) {
+        if (isSignUpSuccessful) {
+            onSignUpSuccess()
+            viewModel.resetSignUpState()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -205,24 +219,46 @@ fun SignUpScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Кнопка регистрации
+        // Кнопка регистрации с валидацией
         AccentButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             text = stringResource(R.string.sign_up),
             onClick = {
-                onSignUpClick(userName, email, password, isCheckboxChecked)
+                // Валидация всех полей
+                if (userName.isBlank()) {
+                    viewModel.showError("Пожалуйста, введите имя")
+                } else if (!isValidEmail(email)) {
+                    viewModel.showError("Некорректный email. Email должен соответствовать формату: name@domenname.ru (только маленькие буквы и цифры, домен верхнего уровня больше 2 символов)")
+                } else if (password.length < 6) {
+                    viewModel.showError("Пароль должен содержать минимум 6 символов")
+                } else if (!isCheckboxChecked) {
+                    viewModel.showError("Необходимо подтвердить согласие на обработку персональных данных")
+                } else {
+                    // Все проверки пройдены - вызываем регистрацию
+                    val signUpRequest = com.example.practice_mobilki.data.model.SignUpRequest(
+                        email = email,
+                        password = password
+                    )
+                    viewModel.signUp(signUpRequest, context)
+                }
             },
             enabled = isCheckboxChecked
         )
+
+        // Индикатор загрузки
+        if (isLoading) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Загрузка...", color = CustomColors.hint)
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 
         // Ссылка на вход
         Text(
             text = stringResource(R.string.have_account),
-            modifier = Modifier.clickable { onSignInClick() },
+            modifier = Modifier.clickable { toSignInScreen() },
             style = TypographyApplication.bodyRegular16
         )
 
@@ -231,8 +267,26 @@ fun SignUpScreen(
     }
 }
 
+
+fun isValidEmail(email: String): Boolean {
+    // Регулярное выражение для проверки email по заданным требованиям
+    // ^[a-z0-9]+@[a-z0-9]+\.[a-z]{3,}$
+    // - имя: одна или более маленьких букв или цифр
+    // - домен: одна или более маленьких букв или цифр
+    // - старший домен: только буквы, минимум 3 символа
+    val emailRegex = "^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$".toRegex()
+    return email.matches(emailRegex)
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun SignUpScreenPreview() {
-    SignUpScreen()
+    // Для превью нужен ViewModel, поэтому лучше не использовать预览 с ViewModel
+    // или создать заглушку
+    SignUpScreen(
+        viewModel = SignUpViewModel(),
+        onSignUpSuccess = {},
+        toSignInScreen = {},
+        onBackClick = {}
+    )
 }

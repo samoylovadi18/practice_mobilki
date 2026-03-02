@@ -15,14 +15,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.practice_mobilki.data.model.SignUpRequest
+import com.example.practice_mobilki.ui.components.CustomAlertDialog
 import com.example.practice_mobilki.ui.screens.SignUpScreen
 import com.example.practice_mobilki.ui.viewmodel.SignUpViewModel
 
@@ -54,11 +53,7 @@ fun AppNavHost(
         // Экран регистрации
         composable(route = Screen.SignUp.route) {
             val viewModel: SignUpViewModel = viewModel()
-            val showDialog by viewModel.showDialog
-            val dialogText by viewModel.dialogText
-            val dialogTitle by viewModel.dialogTitle
             val isSignUpSuccessful by viewModel.isSignUpSuccessful
-            val context = LocalContext.current
 
             // Следим за успешной регистрацией
             LaunchedEffect(isSignUpSuccessful) {
@@ -73,49 +68,26 @@ fun AppNavHost(
             }
 
             SignUpScreen(
+                viewModel = viewModel,
+                onSignUpSuccess = {
+                    // Этот колбэк вызывается из ViewModel при успешной регистрации
+                    // Но мы уже обрабатываем это через LaunchedEffect выше
+                },
+                toSignInScreen = {
+                    navController.navigate(Screen.SignIn.route)
+                },
                 onBackClick = {
                     navController.popBackStack()
-                },
-                onSignUpClick = { userName, email, password, isCheckboxChecked ->
-                    if (isCheckboxChecked) {
-                        // Используем только email и password, так как в SignUpRequest нет name
-                        val signUpRequest = SignUpRequest(
-                            email = email,
-                            password = password
-                        )
-                        viewModel.signUp(signUpRequest, context)
-
-                        // Здесь можно сохранить userName в SharedPreferences или другом месте,
-                        // если нужно сохранить имя пользователя
-                        saveUserName(context, userName)
-                    }
-                },
-                onSignInClick = {
-                    navController.navigate(Screen.SignIn.route)
                 }
             )
 
-            // Диалог с ошибкой (если нужно показать)
-            if (showDialog) {
-                androidx.compose.material3.AlertDialog(
-                    onDismissRequest = {
-                        viewModel.hideDialog()
-                    },
-                    title = {
-                        Text(text = dialogTitle)
-                    },
-                    text = {
-                        Text(text = dialogText)
-                    },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                viewModel.hideDialog()
-                            }
-                        ) {
-                            Text("OK")
-                        }
-                    }
+            // Диалог с ошибкой
+            if (viewModel.showDialog.value) {
+                CustomAlertDialog(
+                    show = viewModel.showDialog.value,
+                    onDismiss = { viewModel.hideDialog() },
+                    text = viewModel.dialogText.value,
+                    title = viewModel.dialogTitle.value
                 )
             }
         }
@@ -157,18 +129,13 @@ fun AppNavHost(
     }
 }
 
-// Вспомогательная функция для сохранения имени пользователя
-private fun saveUserName(context: android.content.Context, userName: String) {
-    val sharedPreferences = context.getSharedPreferences(
-        "my_app_preferences",
-        android.content.Context.MODE_PRIVATE
-    )
-    sharedPreferences.edit().putString("userName", userName).apply()
-}
-
-// Заглушки (оставьте их в конце файла)
+// Заглушки для других экранов
 @Composable
-fun SignInPlaceholder(onSignInSuccess: () -> Unit, onSignUpClick: () -> Unit, onBack: () -> Unit) {
+fun SignInPlaceholder(
+    onSignInSuccess: () -> Unit,
+    onSignUpClick: () -> Unit,
+    onBack: () -> Unit
+) {
     Scaffold { paddingValues ->
         Column(
             modifier = Modifier
