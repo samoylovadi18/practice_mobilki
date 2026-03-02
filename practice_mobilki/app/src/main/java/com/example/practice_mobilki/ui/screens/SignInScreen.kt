@@ -49,6 +49,7 @@ fun SignInScreen(
     viewModel: SignInViewModel,
     onSignInSuccess: () -> Unit,
     toSignUpScreen: () -> Unit,
+    toForgotPasswordScreen: () -> Unit, // ⭐ НОВЫЙ ПАРАМЕТР для перехода на Forgot Password
     onBack: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
@@ -162,18 +163,22 @@ fun SignInScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
 
+        // ⭐ ЗАДАНИЕ 16: Добавлен clickable для перехода на Forgot Password
         Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = stringResource(R.string.recovery_password),
                 fontSize = 16.sp,
                 color = CustomColors.hint,
-                style = TypographyApplication.bodyRegular12
+                style = TypographyApplication.bodyRegular12,
+                modifier = Modifier.clickable {
+                    toForgotPasswordScreen() // Переход на экран восстановления пароля
+                }
             )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // ⭐ ЗАДАНИЕ 13: Кнопка входа с валидацией на пустоту полей
+        // Кнопка входа с валидацией
         AccentButton(
             modifier = Modifier
                 .fillMaxWidth()
@@ -181,7 +186,6 @@ fun SignInScreen(
             text = stringResource(R.string.sign_in),
             onClick = {
                 when {
-                    // Проверка на пустые поля
                     email.isBlank() -> {
                         viewModel.showError(
                             "Поле email не может быть пустым",
@@ -194,21 +198,18 @@ fun SignInScreen(
                             "Ошибка валидации"
                         )
                     }
-                    // Проверка email
                     !validateEmail(email) -> {
                         viewModel.showError(
                             "Некорректный email. Email должен соответствовать формату: name@domenname.ru (только маленькие буквы и цифры, домен верхнего уровня больше 2 символов)",
                             "Ошибка валидации"
                         )
                     }
-                    // Проверка длины пароля
                     password.length < 6 -> {
                         viewModel.showError(
                             "Пароль должен содержать минимум 6 символов",
                             "Ошибка валидации"
                         )
                     }
-                    // Все проверки пройдены
                     else -> {
                         viewModel.signIn(SignInRequest(email, password), context)
                     }
@@ -257,6 +258,7 @@ private fun SignInScreenPreview() {
         viewModel = SignInViewModel(),
         onSignInSuccess = {},
         toSignUpScreen = {},
+        toForgotPasswordScreen = {}, // ⭐ НОВЫЙ ПАРАМЕТР в preview
         onBack = {}
     )
 }
