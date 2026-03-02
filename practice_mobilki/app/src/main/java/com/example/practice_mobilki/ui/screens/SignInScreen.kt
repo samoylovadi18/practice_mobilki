@@ -173,25 +173,45 @@ fun SignInScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Кнопка входа с валидацией
+        // ⭐ ЗАДАНИЕ 13: Кнопка входа с валидацией на пустоту полей
         AccentButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             text = stringResource(R.string.sign_in),
             onClick = {
-                if (!validateEmail(email)) {
-                    viewModel.showError(
-                        "Некорректный email. Email должен соответствовать формату: name@domenname.ru (только маленькие буквы и цифры, домен верхнего уровня больше 2 символов)",
-                        "Ошибка валидации"
-                    )
-                } else if (password.length < 6) {
-                    viewModel.showError(
-                        "Пароль должен содержать минимум 6 символов",
-                        "Ошибка валидации"
-                    )
-                } else {
-                    viewModel.signIn(SignInRequest(email, password), context)
+                when {
+                    // Проверка на пустые поля
+                    email.isBlank() -> {
+                        viewModel.showError(
+                            "Поле email не может быть пустым",
+                            "Ошибка валидации"
+                        )
+                    }
+                    password.isBlank() -> {
+                        viewModel.showError(
+                            "Поле пароля не может быть пустым",
+                            "Ошибка валидации"
+                        )
+                    }
+                    // Проверка email
+                    !validateEmail(email) -> {
+                        viewModel.showError(
+                            "Некорректный email. Email должен соответствовать формату: name@domenname.ru (только маленькие буквы и цифры, домен верхнего уровня больше 2 символов)",
+                            "Ошибка валидации"
+                        )
+                    }
+                    // Проверка длины пароля
+                    password.length < 6 -> {
+                        viewModel.showError(
+                            "Пароль должен содержать минимум 6 символов",
+                            "Ошибка валидации"
+                        )
+                    }
+                    // Все проверки пройдены
+                    else -> {
+                        viewModel.signIn(SignInRequest(email, password), context)
+                    }
                 }
             }
         )
@@ -223,7 +243,7 @@ fun SignInScreen(
     )
 }
 
-// Функция валидации email 
+// Функция валидации email
 fun validateEmail(email: String): Boolean {
     val pattern = "^[a-z0-9]+@[a-z0-9]+\\.[a-z]{3,}$".toRegex()
     return pattern.matches(email)
