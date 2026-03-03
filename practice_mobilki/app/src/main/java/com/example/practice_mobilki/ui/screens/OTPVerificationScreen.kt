@@ -106,7 +106,7 @@ fun OTPVerificationScreen(
                 modifier = Modifier.fillMaxWidth(),
                 value = otpCode,
                 onValueChange = { otpCode = it },
-                placeholderText = "Enter 6-digit code"
+                placeholderText = "Enter 8-digit code"
             )
 
             Spacer(modifier = Modifier.height(16.dp))

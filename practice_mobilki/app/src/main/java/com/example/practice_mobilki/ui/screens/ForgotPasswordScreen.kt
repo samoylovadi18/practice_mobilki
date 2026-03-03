@@ -12,8 +12,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,29 +30,46 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.practice_mobilki.R
 import com.example.practice_mobilki.ui.components.AccentButton
+import com.example.practice_mobilki.ui.components.CustomAlertDialog
 import com.example.practice_mobilki.ui.components.CustomTextField
 import com.example.practice_mobilki.ui.components.SuccessDialog
 import com.example.practice_mobilki.ui.theme.CustomColors
+import com.example.practice_mobilki.ui.viewmodel.ForgotPasswordViewModel
 
 @Composable
 fun ForgotPasswordScreen(
     onBackClick: () -> Unit,
-    onSendClick: (String) -> Unit,
     onNavigateToOTP: () -> Unit,
+    viewModel: ForgotPasswordViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
     var email by remember { mutableStateOf("") }
     var showSuccessDialog by remember { mutableStateOf(false) }
+
+    // Правильный способ получения значений из StateFlow
+    val isLoading by viewModel.isLoading.collectAsState()
+    val isSuccess by viewModel.isSuccess.collectAsState()
+    val showDialog by viewModel.showDialog.collectAsState()
+    val dialogTitle by viewModel.dialogTitle.collectAsState()
+    val dialogText by viewModel.dialogText.collectAsState()
 
     // Функция валидации email
     fun isValidEmail(email: String): Boolean {
         return email.isNotBlank() && email.contains("@") && email.contains(".")
     }
 
+    LaunchedEffect(isSuccess) {
+        if (isSuccess) {
+            showSuccessDialog = true
+            viewModel.resetState()
+        }
+    }
+
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color.White)
             .padding(horizontal = 20.dp),
@@ -115,26 +135,41 @@ fun ForgotPasswordScreen(
                 modifier = Modifier.fillMaxWidth(),
                 value = email,
                 onValueChange = { email = it },
-                placeholderText = "xyz@gmail.com"
+                placeholderText = "xyz@gmail.com",
+                isEnabled = !isLoading
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Кнопка "Send"
-            AccentButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                text = "Send",
-                onClick = {
-                    if (isValidEmail(email)) {
-                        showSuccessDialog = true
-                        onSendClick(email)
-                    } else {
-                        println("Invalid email: $email")
-                    }
+            // Индикатор загрузки или кнопка
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = CustomColors.accent,
+                        modifier = Modifier.size(30.dp)
+                    )
                 }
-            )
+            } else {
+                // Кнопка "Send"
+                AccentButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    text = "Send",
+                    onClick = {
+                        if (isValidEmail(email)) {
+                            viewModel.forgotPassword(email)
+                        } else {
+                            println("Invalid email: $email")
+                        }
+                    }
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -145,9 +180,19 @@ fun ForgotPasswordScreen(
         show = showSuccessDialog,
         onDismiss = {
             showSuccessDialog = false
-            onNavigateToOTP() // Переход на OTP экран при закрытии диалога
+            onNavigateToOTP()
         }
     )
+
+    // Диалог для ошибок
+    if (showDialog) {
+        CustomAlertDialog(
+            show = showDialog,
+            onDismiss = { viewModel.hideDialog() },
+            text = dialogText,
+            title = dialogTitle
+        )
+    }
 }
 
 @Preview(showBackground = true)
@@ -155,7 +200,6 @@ fun ForgotPasswordScreen(
 private fun ForgotPasswordScreenPreview() {
     ForgotPasswordScreen(
         onBackClick = {},
-        onSendClick = {},
         onNavigateToOTP = {}
     )
 }

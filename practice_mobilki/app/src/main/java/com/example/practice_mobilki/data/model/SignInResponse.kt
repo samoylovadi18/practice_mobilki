@@ -1,4 +1,5 @@
 package com.example.practice_mobilki.data.model
+
 data class SignInResponse(
     val access_token: String,
     val token_type: String,
@@ -11,6 +12,5 @@ data class User(
     val id: String,
     val email: String,
     val created_at: String,
-    val phone: String?,
-    val user_metadata: Map<String, Any?>?
+    val updated_at: String? = null
 )

@@ -11,7 +11,7 @@ import java.net.InetSocketAddress
 import java.net.Proxy
 
 object RetrofitInstance {
-    const val SUPABASE_URL = "https://hgpmkdoyhscaubrwsjpg.supabase.co/"
+    const val SUPABASE_URL = "https://lvcfrtimnqfmdbvdsazn.supabase.co"
 
     private val proxy = Proxy(Proxy.Type.HTTP, InetSocketAddress("10.207.106.59", 3128))
     private val client = OkHttpClient.Builder().proxy(proxy).build()

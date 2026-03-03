@@ -45,7 +45,7 @@ sealed class Screen(val route: String) {
 @Composable
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screen.SignIn.route, // ИЗМЕНЕНО: теперь SignIn, а не SignUp
+    startDestination: String = Screen.SignIn.route,
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart
 ) {
@@ -132,20 +132,16 @@ fun AppNavHost(
             }
         }
 
-        // ЭКРАН ВОССТАНОВЛЕНИЯ ПАРОЛЯ
+        // ЭКРАН ВОССТАНОВЛЕНИЯ ПАРОЛЯ - ИСПРАВЛЕНО
         composable(route = Screen.ForgotPassword.route) {
             ForgotPasswordScreen(
                 onBackClick = {
-                    // Возвращает на предыдущий экран (Sign In)
                     navController.popBackStack()
-                },
-                onSendClick = { email ->
-                    // Здесь будет логика отправки email
-                    println("Email sent to: $email")
                 },
                 onNavigateToOTP = {
                     navController.navigate(Screen.OTPVerification.route)
                 }
+                // onSendClick УДАЛЕН - его больше нет в экране
             )
         }
 
@@ -156,9 +152,7 @@ fun AppNavHost(
                     navController.popBackStack()
                 },
                 onVerifyClick = { code ->
-                    // Логика проверки кода
                     println("Verifying code: $code")
-                    // После успешной проверки можно перейти на Home
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.ForgotPassword.route) { inclusive = true }
                     }
