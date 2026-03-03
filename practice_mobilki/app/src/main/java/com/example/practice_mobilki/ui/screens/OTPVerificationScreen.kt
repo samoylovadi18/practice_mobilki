@@ -18,6 +18,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,8 +46,8 @@ fun OTPVerificationScreen(
     onBackClick: () -> Unit,
     onVerifySuccess: () -> Unit,
     email: String,
-    viewModel: OTPVerificationViewModel = viewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: OTPVerificationViewModel = viewModel()
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
@@ -56,19 +56,19 @@ fun OTPVerificationScreen(
     val horizontalPadding = if (isLandscape) 48.dp else 20.dp
     val verticalSpacing = if (isLandscape) 16.dp else 8.dp
 
-    val context = LocalContext.current
     var otpCode by remember { mutableStateOf("") }
     var timer by remember { mutableStateOf(60) } // 01:00
     var isTimerActive by remember { mutableStateOf(true) }
     var canResend by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
-    val isLoading = viewModel.isLoading.value
-    val isSuccess = viewModel.isSuccess.value
-    val showDialog = viewModel.showDialog.value
-    val dialogTitle = viewModel.dialogTitle.value
-    val dialogText = viewModel.dialogText.value
-    val isError = viewModel.isError.value
+    // Используем collectAsState вместо .value
+    val isLoading by viewModel.isLoading.collectAsState()
+    val isSuccess by viewModel.isSuccess.collectAsState()
+    val showDialog by viewModel.showDialog.collectAsState()
+    val dialogTitle by viewModel.dialogTitle.collectAsState()
+    val dialogText by viewModel.dialogText.collectAsState()
+    val isError by viewModel.isError.collectAsState()
 
     // Следим за успешной верификацией
     LaunchedEffect(isSuccess) {
@@ -106,7 +106,7 @@ fun OTPVerificationScreen(
 
     // ОДИНАКОВЫЙ ДИЗАЙН для портрета и ландшафта
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color.White)
             .verticalScroll(scrollState)
