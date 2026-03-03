@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -26,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -49,15 +52,22 @@ fun SignInScreen(
     viewModel: SignInViewModel,
     onSignInSuccess: () -> Unit,
     toSignUpScreen: () -> Unit,
-    toForgotPasswordScreen: () -> Unit, // ⭐ НОВЫЙ ПАРАМЕТР для перехода на Forgot Password
+    toForgotPasswordScreen: () -> Unit,
     onBack: () -> Unit
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
+    // Адаптивные размеры ТОЛЬКО для отступов
+    val horizontalPadding = if (isLandscape) 48.dp else 20.dp // Увеличиваем боковые отступы в ландшафте
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isShowPassword by remember { mutableStateOf(false) }
     val isSignInSuccessful by viewModel.isSignInSuccessful
     val context = LocalContext.current
     val isLoading by viewModel.isLoading
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(isSignInSuccessful) {
         if (isSignInSuccessful) {
@@ -66,18 +76,24 @@ fun SignInScreen(
         }
     }
 
+    // ОДИНАКОВЫЙ ДИЗАЙН для портрета и ландшафта
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(20.dp),
+            .verticalScroll(scrollState)
+            .padding(horizontal = horizontalPadding)
+            .padding(top = 24.dp, bottom = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Box(modifier = Modifier.fillMaxWidth()) {
+        // Кнопка "Назад" слева
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp)
+        ) {
             Box(
-                modifier = modifier
+                modifier = Modifier
                     .size(40.dp)
                     .background(
                         color = CustomColors.background,
@@ -95,8 +111,7 @@ fun SignInScreen(
             }
         }
 
-        Spacer(modifier = Modifier.weight(0.5f))
-
+        // Заголовки
         Text(
             text = stringResource(R.string.hello_again),
             fontSize = 32.sp,
@@ -112,30 +127,39 @@ fun SignInScreen(
             style = TypographyApplication.bodyRegular16
         )
 
-        Spacer(modifier = Modifier.weight(0.25f))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        Column {
+        // Поле "Email"
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(
                 text = stringResource(R.string.email),
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
+            Spacer(modifier = Modifier.height(4.dp))
             CustomTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = email,
                 onValueChange = { email = it },
-                placeholderText = "xyz@gmail.com"
+                placeholderText = "xyz@gmail.com",
+                isEnabled = !isLoading
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Column {
+        // Поле "Пароль"
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(
                 text = stringResource(R.string.password),
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
+            Spacer(modifier = Modifier.height(4.dp))
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = password,
@@ -147,38 +171,56 @@ fun SignInScreen(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
-                visualTransformation = if (isShowPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                placeholder = { Text(text = "••••••••", color = CustomColors.hint) },
+                visualTransformation = if (isShowPassword)
+                    VisualTransformation.None
+                else
+                    PasswordVisualTransformation(),
+                placeholder = {
+                    Text(
+                        text = "••••••••",
+                        color = CustomColors.hint,
+                        fontSize = 16.sp
+                    )
+                },
                 trailingIcon = {
                     Icon(
-                        painter = if (isShowPassword) painterResource(R.drawable.eye_open) else painterResource(R.drawable.eye_close),
-                        contentDescription = "An eye",
-                        modifier = Modifier.clickable {
-                            isShowPassword = !isShowPassword
-                        }
+                        painter = if (isShowPassword)
+                            painterResource(R.drawable.eye_open)
+                        else
+                            painterResource(R.drawable.eye_close),
+                        contentDescription = "Toggle password visibility",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                isShowPassword = !isShowPassword
+                            }
                     )
-                }
+                },
+                enabled = !isLoading
             )
         }
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // ⭐ ЗАДАНИЕ 16: Добавлен clickable для перехода на Forgot Password
-        Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.fillMaxWidth()) {
+        // Ссылка "Forgot Password"
+        Box(
+            contentAlignment = Alignment.CenterEnd,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(
                 text = stringResource(R.string.recovery_password),
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 color = CustomColors.hint,
                 style = TypographyApplication.bodyRegular12,
                 modifier = Modifier.clickable {
-                    toForgotPasswordScreen() // Переход на экран восстановления пароля
+                    toForgotPasswordScreen()
                 }
             )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Кнопка входа с валидацией
+        // Кнопка входа
         AccentButton(
             modifier = Modifier
                 .fillMaxWidth()
@@ -217,25 +259,32 @@ fun SignInScreen(
             }
         )
 
-        Spacer(modifier = Modifier.weight(1f))
+        // Индикация загрузки
+        if (isLoading) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Loading...",
+                color = CustomColors.hint,
+                fontSize = 16.sp
+            )
+        }
 
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Текст "Новый пользователь?"
         Text(
             text = stringResource(R.string.new_user),
+            fontSize = 16.sp,
             modifier = Modifier.clickable {
                 toSignUpScreen()
             },
             style = TypographyApplication.bodyRegular16
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (isLoading) {
-            Text(text = "Loading...", color = CustomColors.hint)
-        }
-
-        Spacer(modifier = Modifier.height(45.dp))
+        Spacer(modifier = Modifier.height(40.dp))
     }
-    //увед
+
+    // Диалог для ошибок
     CustomAlertDialog(
         show = viewModel.showDialog.value,
         onDismiss = { viewModel.hideDialog() },
@@ -251,14 +300,15 @@ fun validateEmail(email: String): Boolean {
 }
 
 @SuppressLint("ViewModelConstructorInComposable")
-@Preview
+@Preview(showBackground = true, name = "Портрет")
+@Preview(showBackground = true, widthDp = 640, heightDp = 360, name = "Ландшафт")
 @Composable
 private fun SignInScreenPreview() {
     SignInScreen(
         viewModel = SignInViewModel(),
         onSignInSuccess = {},
         toSignUpScreen = {},
-        toForgotPasswordScreen = {}, // ⭐ НОВЫЙ ПАРАМЕТР в preview
+        toForgotPasswordScreen = {},
         onBack = {}
     )
 }

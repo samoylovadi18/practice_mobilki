@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -28,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,6 +55,12 @@ fun SignUpScreen(
     onBackClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
+    // Адаптивные размеры ТОЛЬКО для отступов
+    val horizontalPadding = if (isLandscape) 48.dp else 20.dp // Увеличиваем боковые отступы в ландшафте
+
     var userName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -60,6 +69,7 @@ fun SignUpScreen(
     val isLoading by viewModel.isLoading
     val isSignUpSuccessful by viewModel.isSignUpSuccessful
     val context = LocalContext.current
+    val scrollState = rememberScrollState()
 
     // Следим за успешной регистрацией
     androidx.compose.runtime.LaunchedEffect(isSignUpSuccessful) {
@@ -69,20 +79,24 @@ fun SignUpScreen(
         }
     }
 
+    // ОДИНАКОВЫЙ ДИЗАЙН для портрета и ландшафта
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(20.dp),
+            .verticalScroll(scrollState)
+            .padding(horizontal = horizontalPadding)
+            .padding(top = 24.dp, bottom = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Верхний отступ
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Кнопка "Назад"
-        Box(modifier = Modifier.fillMaxWidth()) {
+        // Кнопка "Назад" слева
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp)
+        ) {
             Box(
-                modifier = modifier
+                modifier = Modifier
                     .size(40.dp)
                     .background(
                         color = CustomColors.background,
@@ -100,15 +114,15 @@ fun SignUpScreen(
             }
         }
 
-        Spacer(modifier = Modifier.weight(0.5f))
-
         // Заголовки
         Text(
             text = stringResource(R.string.register_account),
             fontSize = 32.sp,
             style = TypographyApplication.headingRegular32
         )
+
         Spacer(modifier = Modifier.height(8.dp))
+
         Text(
             text = stringResource(R.string.fill_details),
             fontSize = 16.sp,
@@ -116,15 +130,18 @@ fun SignUpScreen(
             style = TypographyApplication.bodyRegular16
         )
 
-        Spacer(modifier = Modifier.weight(0.25f))
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Поле "Имя"
-        Column {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(
                 text = stringResource(R.string.your_name),
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
+            Spacer(modifier = Modifier.height(4.dp))
             CustomTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = userName,
@@ -133,15 +150,18 @@ fun SignUpScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Поле "Email"
-        Column {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(
                 text = stringResource(R.string.email),
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
+            Spacer(modifier = Modifier.height(4.dp))
             CustomTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = email,
@@ -150,15 +170,18 @@ fun SignUpScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Поле "Пароль"
-        Column {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(
                 text = stringResource(R.string.password),
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
+            Spacer(modifier = Modifier.height(4.dp))
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = password,
@@ -177,7 +200,8 @@ fun SignUpScreen(
                 placeholder = {
                     Text(
                         text = "••••••••",
-                        color = CustomColors.hint
+                        color = CustomColors.hint,
+                        fontSize = 16.sp
                     )
                 },
                 trailingIcon = {
@@ -187,47 +211,45 @@ fun SignUpScreen(
                         else
                             painterResource(R.drawable.eye_close),
                         contentDescription = "Toggle password visibility",
-                        modifier = Modifier.clickable {
-                            isPasswordVisible = !isPasswordVisible
-                        }
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable {
+                                isPasswordVisible = !isPasswordVisible
+                            }
                     )
                 }
             )
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Чекбокс согласия
-        Box(
-            contentAlignment = Alignment.CenterStart,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CustomCheckbox(
-                    checked = isCheckboxChecked,
-                    onCheckedChange = { isCheckboxChecked = it },
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(5.dp))
-                Text(
-                    text = stringResource(R.string.agree_processing_personal),
-                    style = TypographyApplication.bodyRegular16
-                )
-            }
+            CustomCheckbox(
+                checked = isCheckboxChecked,
+                onCheckedChange = { isCheckboxChecked = it },
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.agree_processing_personal),
+                fontSize = 16.sp,
+                style = TypographyApplication.bodyRegular16
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Кнопка регистрации с валидацией
+        // Кнопка регистрации
         AccentButton(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             text = stringResource(R.string.sign_up),
             onClick = {
-                // Валидация всех полей перед регистрацией
                 if (userName.isBlank()) {
                     viewModel.showError("Пожалуйста, введите имя")
                 } else if (!isValidEmail(email)) {
@@ -237,7 +259,6 @@ fun SignUpScreen(
                 } else if (!isCheckboxChecked) {
                     viewModel.showError("Необходимо подтвердить согласие на обработку персональных данных")
                 } else {
-                    // Все проверки пройдены - вызываем регистрацию
                     val signUpRequest = com.example.practice_mobilki.data.model.SignUpRequest(
                         email = email,
                         password = password
@@ -248,20 +269,27 @@ fun SignUpScreen(
             enabled = isCheckboxChecked
         )
 
-        // ЗАДАНИЕ 10: Индикация загрузки
+        // Индикация загрузки
         if (isLoading) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Загрузка...", color = CustomColors.hint)
+            Spacer(modifier = Modifier.height(16.dp))
+            CircularProgressIndicator(
+                color = CustomColors.accent,
+                modifier = Modifier.size(30.dp)
+            )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(24.dp))
 
+        // Текст "Уже есть аккаунт?"
         Text(
             text = stringResource(R.string.have_account),
+            fontSize = 16.sp,
             modifier = Modifier.clickable { toSignInScreen() },
             style = TypographyApplication.bodyRegular16
         )
-        Spacer(modifier = Modifier.height(45.dp))
+
+        // Дополнительный отступ снизу для прокрутки
+        Spacer(modifier = Modifier.height(40.dp))
     }
 }
 
@@ -274,7 +302,8 @@ fun isValidEmail(email: String): Boolean {
 }
 
 @SuppressLint("ViewModelConstructorInComposable")
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Портрет")
+@Preview(showBackground = true, widthDp = 640, heightDp = 360, name = "Ландшафт")
 @Composable
 private fun SignUpScreenPreview() {
     SignUpScreen(

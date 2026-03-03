@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,8 +49,15 @@ fun ForgotPasswordScreen(
     viewModel: ForgotPasswordViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
+    // Адаптивные размеры ТОЛЬКО для отступов
+    val horizontalPadding = if (isLandscape) 48.dp else 20.dp
+
     var email by remember { mutableStateOf("") }
     var showSuccessDialog by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
     // Правильный способ получения значений из StateFlow
     val isLoading by viewModel.isLoading.collectAsState()
@@ -68,18 +78,21 @@ fun ForgotPasswordScreen(
         }
     }
 
+    // ОДИНАКОВЫЙ ДИЗАЙН для портрета и ландшафта
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(horizontal = 20.dp),
+            .verticalScroll(scrollState)
+            .padding(horizontal = horizontalPadding)
+            .padding(top = 24.dp, bottom = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Кнопка "Назад"
+        // Кнопка "Назад" слева
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 15.dp)
+                .padding(bottom = 24.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -100,79 +113,71 @@ fun ForgotPasswordScreen(
             }
         }
 
-        // Контент
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(20.dp))
+        // Заголовок
+        Text(
+            text = "Forgot Password",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.Black,
+            textAlign = TextAlign.Center
+        )
 
-            // Заголовок
-            Text(
-                text = "Forgot Password",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black
-            )
+        Spacer(modifier = Modifier.height(8.dp))
 
-            Spacer(modifier = Modifier.height(8.dp))
+        // Подзаголовок
+        Text(
+            text = "Enter your account email\nto reset your password",
+            fontSize = 16.sp,
+            color = CustomColors.hint,
+            lineHeight = 24.sp,
+            textAlign = TextAlign.Center
+        )
 
-            // Подзаголовок
-            Text(
-                text = "Enter your account email\nto reset your password",
-                fontSize = 16.sp,
-                color = CustomColors.hint,
-                lineHeight = 24.sp,
-                textAlign = TextAlign.Center
-            )
+        Spacer(modifier = Modifier.height(32.dp))
 
-            Spacer(modifier = Modifier.height(32.dp))
+        // Поле ввода email
+        CustomTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = email,
+            onValueChange = { email = it },
+            placeholderText = "xyz@gmail.com",
+            isEnabled = !isLoading
+        )
 
-            // Поле ввода email
-            CustomTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = email,
-                onValueChange = { email = it },
-                placeholderText = "xyz@gmail.com",
-                isEnabled = !isLoading
-            )
+        Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Индикатор загрузки или кнопка
-            if (isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        color = CustomColors.accent,
-                        modifier = Modifier.size(30.dp)
-                    )
-                }
-            } else {
-                // Кнопка "Send"
-                AccentButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    text = "Send",
-                    onClick = {
-                        if (isValidEmail(email)) {
-                            viewModel.forgotPassword(email)
-                        } else {
-                            println("Invalid email: $email")
-                        }
-                    }
+        // Индикатор загрузки или кнопка
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = CustomColors.accent,
+                    modifier = Modifier.size(30.dp)
                 )
             }
+        } else {
+            // Кнопка "Send"
+            AccentButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                text = "Send",
+                onClick = {
+                    if (isValidEmail(email)) {
+                        viewModel.forgotPassword(email)
+                    } else {
+                        println("Invalid email: $email")
+                    }
+                }
+            )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        // Дополнительный отступ снизу для прокрутки
+        Spacer(modifier = Modifier.height(40.dp))
     }
 
     // Диалог успешной отправки
@@ -195,7 +200,8 @@ fun ForgotPasswordScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Портрет")
+@Preview(showBackground = true, widthDp = 640, heightDp = 360, name = "Ландшафт")
 @Composable
 private fun ForgotPasswordScreenPreview() {
     ForgotPasswordScreen(
