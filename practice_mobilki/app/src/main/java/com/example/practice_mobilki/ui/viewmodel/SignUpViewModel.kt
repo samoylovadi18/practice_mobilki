@@ -23,6 +23,9 @@ open class SignUpViewModel : ViewModel() {
     private val viewModelDialogTitle = mutableStateOf("")
     val dialogTitle: State<String> = viewModelDialogTitle
 
+    private val _userEmail = mutableStateOf("")
+    val userEmail: State<String> = _userEmail
+
     fun showError(text: String, title: String = "Внимание") {
         viewModelDialogText.value = text
         viewModelDialogTitle.value = title
@@ -38,6 +41,7 @@ open class SignUpViewModel : ViewModel() {
 
     fun resetSignUpState() {
         viewModelIsSignUpSuccessful.value = false
+        _userEmail.value = ""
     }
 
     private val viewModelIsLoading = mutableStateOf(false)
@@ -69,6 +73,8 @@ open class SignUpViewModel : ViewModel() {
                             apply()
                         }
                         println("✅ SignUp successful")
+                        // Сохраняем email пользователя для передачи на OTP экран
+                        _userEmail.value = signUpRequest.email
                         viewModelIsSignUpSuccessful.value = true
                     }
                 } else {

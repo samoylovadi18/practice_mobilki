@@ -21,16 +21,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.practice_mobilki.ui.components.CustomAlertDialog
 import com.example.practice_mobilki.ui.screens.ForgotPasswordScreen
-import com.example.practice_mobilki.ui.screens.OTPVerificationScreen
+import com.example.practice_mobilki.ui.screens.OtpVerificationScreen
 import com.example.practice_mobilki.ui.screens.SignInScreen
 import com.example.practice_mobilki.ui.screens.SignUpScreen
 import com.example.practice_mobilki.ui.viewmodel.SignInViewModel
 import com.example.practice_mobilki.ui.viewmodel.SignUpViewModel
+import com.example.practice_mobilki.ui.viewmodel.VerifyOTPViewModel
 
 // Класс для хранения маршрутов
 sealed class Screen(val route: String) {
@@ -40,20 +43,28 @@ sealed class Screen(val route: String) {
     data object OTPVerification : Screen("otp_verification")
     data object Home : Screen("home")
     data object Profile : Screen("profile")
+
+    // Для маршрута с параметром
+    fun withArgs(vararg args: String): String {
+        return buildString {
+            append(route)
+            args.forEach { arg ->
+                append("/$arg")
+            }
+        }
+    }
 }
 
 @Composable
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     startDestination: String = Screen.SignIn.route,
-    modifier: Modifier = Modifier,
-    contentAlignment: Alignment = Alignment.TopStart
+    modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier,
-        contentAlignment = contentAlignment,
         enterTransition = { fadeIn(animationSpec = tween(700)) },
         exitTransition = { fadeOut(animationSpec = tween(700)) },
         popEnterTransition = { fadeIn(animationSpec = tween(700)) },
@@ -63,11 +74,13 @@ fun AppNavHost(
         composable(route = Screen.SignUp.route) {
             val viewModel: SignUpViewModel = viewModel()
             val isSignUpSuccessful by viewModel.isSignUpSuccessful
+            val userEmail by viewModel.userEmail
 
             LaunchedEffect(isSignUpSuccessful) {
                 if (isSignUpSuccessful) {
                     viewModel.resetSignUpState()
-                    navController.navigate(Screen.SignIn.route) {
+                    // Переход на OTP с email пользователя
+                    navController.navigate(Screen.OTPVerification.withArgs(userEmail)) {
                         popUpTo(Screen.SignUp.route) { inclusive = true }
                     }
                 }
@@ -138,20 +151,36 @@ fun AppNavHost(
                 onBackClick = {
                     navController.popBackStack()
                 },
-                onNavigateToOTP = {
-                    navController.navigate(Screen.OTPVerification.route)
+                onNavigateToOTP = { email ->
+                    navController.navigate(Screen.OTPVerification.withArgs(email))
                 }
             )
         }
 
-        // ЭКРАН OTP VERIFICATION
-        composable(route = Screen.OTPVerification.route) {
-            OTPVerificationScreen(
-                onBackClick = {
-                    navController.popBackStack()
+        // ЭКРАН OTP VERIFICATION - ИСПРАВЛЕНО!
+        composable(
+            route = "${Screen.OTPVerification.route}/{email}",
+            arguments = listOf(
+                navArgument("email") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            val viewModel: VerifyOTPViewModel = viewModel()
+
+            OtpVerificationScreen(
+                modifier = Modifier,
+                viewModel = viewModel,
+                onVerifyOTPSuccess = {
+                    // После успешной верификации переходим на вход
+                    navController.navigate(Screen.SignIn.route) {
+                        popUpTo(Screen.OTPVerification.route) { inclusive = true }
+                    }
                 },
-                onVerifyClick = { code ->
-                    println("Verifying code: $code")
+                onBack = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -176,19 +205,15 @@ fun AppNavHost(
     }
 }
 
-@Composable
-fun OTPVerificationScreen(onBackClick: () -> Boolean, onVerifyClick: (ERROR) -> Unit) {
-    TODO("Not yet implemented")
-}
-
-annotation class ERROR
-
 // ЗАГЛУШКА ДЛЯ HOME
 @Composable
-fun HomePlaceholder(onProfileClick: () -> Unit) {
+fun HomePlaceholder(
+    onProfileClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Scaffold { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -211,10 +236,13 @@ fun HomePlaceholder(onProfileClick: () -> Unit) {
 
 // ЗАГЛУШКА ДЛЯ PROFILE
 @Composable
-fun ProfilePlaceholder(onBack: () -> Unit) {
+fun ProfilePlaceholder(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Scaffold { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues),
             horizontalAlignment = Alignment.CenterHorizontally,

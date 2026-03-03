@@ -45,7 +45,7 @@ import com.example.practice_mobilki.ui.viewmodel.ForgotPasswordViewModel
 @Composable
 fun ForgotPasswordScreen(
     onBackClick: () -> Unit,
-    onNavigateToOTP: () -> Unit,
+    onNavigateToOTP: (String) -> Unit,
     viewModel: ForgotPasswordViewModel = viewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -198,6 +198,10 @@ fun ForgotPasswordScreen(
             title = dialogTitle
         )
     }
+}
+
+fun onNavigateToOTP() {
+    TODO("Not yet implemented")
 }
 
 @Preview(showBackground = true, name = "Портрет")

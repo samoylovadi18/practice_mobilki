@@ -8,8 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 
 class OTPVerificationViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
@@ -39,7 +37,7 @@ class OTPVerificationViewModel : ViewModel() {
             _isError.value = false
 
             try {
-                println("🔐 Verifying OTP for email: $email, token: $token")
+                println("🔐 Verifying OTP - Email: $email, Token: $token, Type: $type")
 
                 val response = RetrofitInstance.userManagementService.verifyOTP(
                     VerifyOtpRequest(
@@ -49,14 +47,15 @@ class OTPVerificationViewModel : ViewModel() {
                     )
                 )
 
+                println("📥 Response code: ${response.code()}")
+                println("📥 Response body: ${response.body()}")
+                println("📥 Error body: ${response.errorBody()?.string()}")
+
                 if (response.isSuccessful) {
                     println("✅ OTP verification successful")
                     _isSuccess.value = true
                     showSuccessDialog("Успех", "Email успешно подтвержден!")
                 } else {
-                    val errorBody = response.errorBody()?.string()
-                    println("❌ OTP verification failed: ${response.code()}")
-
                     when (response.code()) {
                         400 -> {
                             _isError.value = true
@@ -73,11 +72,6 @@ class OTPVerificationViewModel : ViewModel() {
                             _errorMessage.value = "Пользователь не найден"
                             showErrorDialog("Ошибка", "Пользователь не найден")
                         }
-                        429 -> {
-                            _isError.value = true
-                            _errorMessage.value = "Слишком много запросов"
-                            showErrorDialog("Ошибка", "Слишком много запросов. Попробуйте позже")
-                        }
                         else -> {
                             _isError.value = true
                             _errorMessage.value = "Ошибка сервера"
@@ -85,22 +79,12 @@ class OTPVerificationViewModel : ViewModel() {
                         }
                     }
                 }
-            } catch (e: UnknownHostException) {
-                _isError.value = true
-                _errorMessage.value = "Нет интернета"
-                showErrorDialog("Ошибка сети", "Отсутствует подключение к интернету")
-            } catch (e: SocketTimeoutException) {
-                _isError.value = true
-                _errorMessage.value = "Таймаут"
-                showErrorDialog("Таймаут", "Сервер не отвечает. Проверьте подключение")
-            } catch (e: IOException) {
-                _isError.value = true
-                _errorMessage.value = "Ошибка сети"
-                showErrorDialog("Ошибка сети", e.message ?: "Ошибка соединения")
             } catch (e: Exception) {
+                println("❌ Exception: ${e.message}")
+                e.printStackTrace()
                 _isError.value = true
-                _errorMessage.value = e.message ?: "Неизвестная ошибка"
-                showErrorDialog("Ошибка", e.message ?: "Неизвестная ошибка")
+                _errorMessage.value = e.message ?: "Ошибка сети"
+                showErrorDialog("Ошибка", e.message ?: "Ошибка соединения")
             } finally {
                 _isLoading.value = false
             }
@@ -110,9 +94,8 @@ class OTPVerificationViewModel : ViewModel() {
     fun resendCode(email: String, type: String = "signup") {
         viewModelScope.launch {
             try {
-                println("📤 Resend code for email: $email")
+                println("📤 Resending code for email: $email")
                 // Здесь должен быть API запрос на повторную отправку
-                // RetrofitInstance.userManagementService.resendOTP(...)
                 showSuccessDialog("Успех", "Код отправлен повторно")
             } catch (e: Exception) {
                 showErrorDialog("Ошибка", "Не удалось отправить код")
