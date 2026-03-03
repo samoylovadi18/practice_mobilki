@@ -44,6 +44,8 @@ fun OTPVerificationScreen(
     var timer by remember { mutableStateOf(60) }
     var isTimerActive by remember { mutableStateOf(true) }
     var canResend by remember { mutableStateOf(false) }
+    var isError by remember { mutableStateOf(false) } // Для отслеживания ошибки
+    var errorMessage by remember { mutableStateOf("") }
 
     // Таймер обратного отсчета
     LaunchedEffect(isTimerActive) {
@@ -64,6 +66,23 @@ fun OTPVerificationScreen(
             timer = 60
             isTimerActive = true
             canResend = false
+            isError = false // Сбрасываем ошибку при повторной отправке
+            errorMessage = ""
+        }
+    }
+
+    // Функция проверки кода (здесь должна быть логика проверки на сервере)
+    fun verifyCode(code: String) {
+        // Для примера считаем, что правильный код "123456"
+        // В реальном приложении здесь будет запрос к серверу
+        val correctCode = "123456"
+
+        if (code == correctCode) {
+            isError = false
+            onVerifyClick(code)
+        } else {
+            isError = true
+            errorMessage = "Invalid code. Please try again"
         }
     }
 
@@ -126,12 +145,12 @@ fun OTPVerificationScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Метка "OTP Code"
+        // Метка "OTP Code" - становится красной при ошибке
         Text(
             text = "OTP Code",
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
-            color = Color.Black,
+            color = if (isError) Color.Red else Color.Black,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 4.dp)
@@ -139,29 +158,44 @@ fun OTPVerificationScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Поле ввода OTP
+        // Поле ввода OTP - с поддержкой ошибки
         CustomTextField(
             modifier = Modifier.fillMaxWidth(),
             value = otpCode,
             onValueChange = {
                 if (it.length <= 6) {
                     otpCode = it
+                    isError = false // Сбрасываем ошибку при изменении текста
+                    errorMessage = ""
                     if (it.length == 6) {
-                        onVerifyClick(it)
+                        verifyCode(it)
                     }
                 }
             },
-            placeholderText = "000000"
+            placeholderText = "000000",
+            isError = isError // Передаем состояние ошибки
         )
+
+        // Сообщение об ошибке (красным цветом)
+        if (isError) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = errorMessage,
+                fontSize = 12.sp,
+                color = Color.Red,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Таймер (правильное форматирование)
+        // Таймер
         Text(
             text = timerText,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
-            color = CustomColors.accent
+            color = if (isError) Color.Red else CustomColors.accent // Красный при ошибке
         )
 
         Spacer(modifier = Modifier.height(8.dp))
