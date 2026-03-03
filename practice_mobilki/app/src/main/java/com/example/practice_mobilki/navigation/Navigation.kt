@@ -26,7 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.practice_mobilki.ui.components.CustomAlertDialog
 import com.example.practice_mobilki.ui.screens.ForgotPasswordScreen
-import com.example.practice_mobilki.ui.screens.OTPVerificationScreen
+import com.example.practice_mobilki.ui.screens.OTPVerificationViewModel
 import com.example.practice_mobilki.ui.screens.SignInScreen
 import com.example.practice_mobilki.ui.screens.SignUpScreen
 import com.example.practice_mobilki.ui.viewmodel.SignInViewModel
@@ -132,7 +132,7 @@ fun AppNavHost(
             }
         }
 
-        // ЭКРАН ВОССТАНОВЛЕНИЯ ПАРОЛЯ - ИСПРАВЛЕНО
+        // ЭКРАН ВОССТАНОВЛЕНИЯ ПАРОЛЯ
         composable(route = Screen.ForgotPassword.route) {
             ForgotPasswordScreen(
                 onBackClick = {
@@ -141,7 +141,6 @@ fun AppNavHost(
                 onNavigateToOTP = {
                     navController.navigate(Screen.OTPVerification.route)
                 }
-                // onSendClick УДАЛЕН - его больше нет в экране
             )
         }
 
@@ -153,9 +152,6 @@ fun AppNavHost(
                 },
                 onVerifyClick = { code ->
                     println("Verifying code: $code")
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.ForgotPassword.route) { inclusive = true }
-                    }
                 }
             )
         }
@@ -179,6 +175,13 @@ fun AppNavHost(
         }
     }
 }
+
+@Composable
+fun OTPVerificationScreen(onBackClick: () -> Boolean, onVerifyClick: (ERROR) -> Unit) {
+    TODO("Not yet implemented")
+}
+
+annotation class ERROR
 
 // ЗАГЛУШКА ДЛЯ HOME
 @Composable

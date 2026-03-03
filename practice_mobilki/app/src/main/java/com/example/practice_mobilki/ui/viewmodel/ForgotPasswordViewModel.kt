@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.practice_mobilki.data.RetrofitInstance
 import com.example.practice_mobilki.data.model.ForgotPasswordRequest
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -28,12 +29,33 @@ class ForgotPasswordViewModel : ViewModel() {
     private val _dialogTitle = MutableStateFlow("")
     val dialogTitle: StateFlow<String> = _dialogTitle
 
+    // Упрощенная защита от частых запросов
+    private var lastRequestTime = 0L
+    private val minRequestInterval = 60000L // 60 секунд между запросами
+
     fun forgotPassword(email: String) {
+        val currentTime = System.currentTimeMillis()
+
+        // Проверяем, не слишком ли часто отправляем запросы
+        if (currentTime - lastRequestTime < minRequestInterval && lastRequestTime != 0L) {
+            val remainingSeconds = (minRequestInterval - (currentTime - lastRequestTime)) / 1000
+            showErrorDialog(
+                "Слишком часто",
+                "Пожалуйста, подождите $remainingSeconds сек. перед следующим запросом"
+            )
+            return
+        }
+
+        lastRequestTime = currentTime
+
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
 
             try {
+                // Небольшая задержка перед запросом
+                delay(1000)
+
                 val response = RetrofitInstance.userManagementService.forgotPassword(
                     ForgotPasswordRequest(email = email)
                 )
@@ -42,12 +64,23 @@ class ForgotPasswordViewModel : ViewModel() {
                     val body = response.body()
                     if (body != null && body.success == true) {
                         _isSuccess.value = true
+                        showSuccessDialog("Успех", "Код восстановления отправлен на ваш email")
                     } else {
                         val errorMsg = body?.message ?: "Ошибка при отправке запроса"
                         showErrorDialog("Ошибка", errorMsg)
                     }
                 } else {
-                    showErrorDialog("Ошибка", "Сервер вернул ошибку: ${response.code()}")
+                    when (response.code()) {
+                        429 -> showErrorDialog(
+                            "Слишком много запросов",
+                            "Сервер временно заблокировал запросы. Попробуйте через несколько минут."
+                        )
+                        404 -> showErrorDialog(
+                            "Пользователь не найден",
+                            "Пользователь с таким email не зарегистрирован"
+                        )
+                        else -> showErrorDialog("Ошибка", "Сервер вернул ошибку: ${response.code()}")
+                    }
                 }
             } catch (e: IOException) {
                 showErrorDialog("Ошибка сети", "Проверьте подключение к интернету")
@@ -60,6 +93,12 @@ class ForgotPasswordViewModel : ViewModel() {
     }
 
     private fun showErrorDialog(title: String, message: String) {
+        _dialogTitle.value = title
+        _dialogText.value = message
+        _showDialog.value = true
+    }
+
+    private fun showSuccessDialog(title: String, message: String) {
         _dialogTitle.value = title
         _dialogText.value = message
         _showDialog.value = true
