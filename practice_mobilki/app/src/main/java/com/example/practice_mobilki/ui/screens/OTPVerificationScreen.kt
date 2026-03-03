@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import com.example.practice_mobilki.R
 import com.example.practice_mobilki.ui.components.CustomTextField
 import com.example.practice_mobilki.ui.theme.CustomColors
@@ -35,10 +37,40 @@ import com.example.practice_mobilki.ui.theme.CustomColors
 fun OTPVerificationScreen(
     onBackClick: () -> Unit,
     onVerifyClick: (String) -> Unit,
+    onResendClick: () -> Unit = { println("Resend code") },
     modifier: Modifier = Modifier
 ) {
     var otpCode by remember { mutableStateOf("") }
-    var timer by remember { mutableStateOf(30) }
+    var timer by remember { mutableStateOf(60) }
+    var isTimerActive by remember { mutableStateOf(true) }
+    var canResend by remember { mutableStateOf(false) }
+
+    // Таймер обратного отсчета
+    LaunchedEffect(isTimerActive) {
+        if (isTimerActive) {
+            while (timer > 0) {
+                delay(1000L)
+                timer--
+            }
+            isTimerActive = false
+            canResend = true
+        }
+    }
+
+    // Функция для повторной отправки кода
+    fun resendCode() {
+        if (canResend) {
+            onResendClick()
+            timer = 60
+            isTimerActive = true
+            canResend = false
+        }
+    }
+
+    // Форматирование таймера: минуты и секунды
+    val minutes = timer / 60
+    val seconds = timer % 60
+    val timerText = String.format("%02d:%02d", minutes, seconds)
 
     Column(
         modifier = Modifier
@@ -124,9 +156,9 @@ fun OTPVerificationScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Таймер
+        // Таймер (правильное форматирование)
         Text(
-            text = String.format("00:%02d", timer),
+            text = timerText,
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
             color = CustomColors.accent
@@ -138,11 +170,9 @@ fun OTPVerificationScreen(
         Text(
             text = "Resend code",
             fontSize = 14.sp,
-            color = CustomColors.accent,
-            modifier = Modifier.clickable {
-                println("Resend code")
-                timer = 30
-            }
+            color = if (canResend) CustomColors.accent else Color.Gray,
+            modifier = Modifier
+                .clickable(enabled = canResend) { resendCode() }
         )
 
         Spacer(modifier = Modifier.weight(0.5f))
