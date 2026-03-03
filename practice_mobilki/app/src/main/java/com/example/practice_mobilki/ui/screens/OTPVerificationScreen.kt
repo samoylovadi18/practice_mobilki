@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.practice_mobilki.R
-import com.example.practice_mobilki.ui.components.AccentButton
 import com.example.practice_mobilki.ui.components.CustomTextField
 import com.example.practice_mobilki.ui.theme.CustomColors
 
@@ -39,6 +38,7 @@ fun OTPVerificationScreen(
     modifier: Modifier = Modifier
 ) {
     var otpCode by remember { mutableStateOf("") }
+    var timer by remember { mutableStateOf(30) }
 
     Column(
         modifier = Modifier
@@ -71,77 +71,85 @@ fun OTPVerificationScreen(
             }
         }
 
-        // Контент
-        Column(
+        Spacer(modifier = Modifier.weight(0.3f))
+
+        // Заголовок
+        Text(
+            text = "OTP Verification",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Подзаголовок
+        Text(
+            text = "Please check your email\nto see the verification code",
+            fontSize = 14.sp,
+            color = Color.Gray,
+            lineHeight = 20.sp,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Метка "OTP Code"
+        Text(
+            text = "OTP Code",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.Black,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(20.dp))
+                .padding(start = 4.dp)
+        )
 
-            // Заголовок
-            Text(
-                text = "OTP Verification",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black
-            )
+        Spacer(modifier = Modifier.height(8.dp))
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Подзаголовок
-            Text(
-                text = "Enter the verification code\nsent to your email",
-                fontSize = 16.sp,
-                color = CustomColors.hint,
-                lineHeight = 24.sp,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Поле ввода OTP
-            CustomTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = otpCode,
-                onValueChange = { otpCode = it },
-                placeholderText = "Enter 8-digit code"
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Кнопка "Verify"
-            AccentButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                text = "Verify",
-                onClick = {
-                    if (otpCode.isNotBlank()) {
-                        onVerifyClick(otpCode)
+        // Поле ввода OTP
+        CustomTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = otpCode,
+            onValueChange = {
+                if (it.length <= 6) {
+                    otpCode = it
+                    if (it.length == 6) {
+                        onVerifyClick(it)
                     }
                 }
-            )
+            },
+            placeholderText = "000000"
+        )
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-            // Ссылка для повторной отправки
-            Text(
-                text = "Didn't receive code? Resend",
-                fontSize = 14.sp,
-                color = CustomColors.accent,
-                modifier = Modifier.clickable {
-                    println("Resend code")
-                }
-            )
-        }
+        // Таймер
+        Text(
+            text = String.format("00:%02d", timer),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium,
+            color = CustomColors.accent
+        )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Ссылка для повторной отправки
+        Text(
+            text = "Resend code",
+            fontSize = 14.sp,
+            color = CustomColors.accent,
+            modifier = Modifier.clickable {
+                println("Resend code")
+                timer = 30
+            }
+        )
+
+        Spacer(modifier = Modifier.weight(0.5f))
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun OTPVerificationScreenPreview() {
     OTPVerificationScreen(
