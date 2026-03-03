@@ -45,7 +45,7 @@ sealed class Screen(val route: String) {
 @Composable
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screen.SignUp.route,
+    startDestination: String = Screen.SignIn.route, // ИЗМЕНЕНО: теперь SignIn, а не SignUp
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart
 ) {
@@ -136,6 +136,7 @@ fun AppNavHost(
         composable(route = Screen.ForgotPassword.route) {
             ForgotPasswordScreen(
                 onBackClick = {
+                    // Возвращает на предыдущий экран (Sign In)
                     navController.popBackStack()
                 },
                 onSendClick = { email ->
