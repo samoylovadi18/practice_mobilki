@@ -26,6 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.practice_mobilki.ui.components.CustomAlertDialog
 import com.example.practice_mobilki.ui.screens.ForgotPasswordScreen
+import com.example.practice_mobilki.ui.screens.OTPVerificationScreen
 import com.example.practice_mobilki.ui.screens.SignInScreen
 import com.example.practice_mobilki.ui.screens.SignUpScreen
 import com.example.practice_mobilki.ui.viewmodel.SignInViewModel
@@ -36,6 +37,7 @@ sealed class Screen(val route: String) {
     data object SignUp : Screen("sign_up")
     data object SignIn : Screen("sign_in")
     data object ForgotPassword : Screen("forgot_password")
+    data object OTPVerification : Screen("otp_verification")
     data object Home : Screen("home")
     data object Profile : Screen("profile")
 }
@@ -137,9 +139,28 @@ fun AppNavHost(
                     navController.popBackStack()
                 },
                 onSendClick = { email ->
-                    // Здесь будет логика отправки email для восстановления
-                    // Пока просто возвращаемся назад
+                    // Здесь будет логика отправки email
+                    println("Email sent to: $email")
+                },
+                onNavigateToOTP = {
+                    navController.navigate(Screen.OTPVerification.route)
+                }
+            )
+        }
+
+        // ЭКРАН OTP VERIFICATION
+        composable(route = Screen.OTPVerification.route) {
+            OTPVerificationScreen(
+                onBackClick = {
                     navController.popBackStack()
+                },
+                onVerifyClick = { code ->
+                    // Логика проверки кода
+                    println("Verifying code: $code")
+                    // После успешной проверки можно перейти на Home
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.ForgotPassword.route) { inclusive = true }
+                    }
                 }
             )
         }

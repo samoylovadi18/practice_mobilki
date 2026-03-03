@@ -30,23 +30,15 @@ import androidx.compose.ui.unit.sp
 import com.example.practice_mobilki.R
 import com.example.practice_mobilki.ui.components.AccentButton
 import com.example.practice_mobilki.ui.components.CustomTextField
-import com.example.practice_mobilki.ui.components.SuccessDialog
 import com.example.practice_mobilki.ui.theme.CustomColors
 
 @Composable
-fun ForgotPasswordScreen(
+fun OTPVerificationScreen(
     onBackClick: () -> Unit,
-    onSendClick: (String) -> Unit,
-    onNavigateToOTP: () -> Unit,
+    onVerifyClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var email by remember { mutableStateOf("") }
-    var showSuccessDialog by remember { mutableStateOf(false) }
-
-    // Функция валидации email
-    fun isValidEmail(email: String): Boolean {
-        return email.isNotBlank() && email.contains("@") && email.contains(".")
-    }
+    var otpCode by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -74,8 +66,7 @@ fun ForgotPasswordScreen(
                 Image(
                     painter = painterResource(R.drawable.back),
                     contentDescription = "Back",
-                    modifier = Modifier.size(20.dp),
-                    alpha = 1f
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
@@ -91,7 +82,7 @@ fun ForgotPasswordScreen(
 
             // Заголовок
             Text(
-                text = "Forgot Password",
+                text = "OTP Verification",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.Black
@@ -101,7 +92,7 @@ fun ForgotPasswordScreen(
 
             // Подзаголовок
             Text(
-                text = "Enter your account email\nto reset your password",
+                text = "Enter the verification code\nsent to your email",
                 fontSize = 16.sp,
                 color = CustomColors.hint,
                 lineHeight = 24.sp,
@@ -110,52 +101,51 @@ fun ForgotPasswordScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Поле ввода email
+            // Поле ввода OTP
             CustomTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = email,
-                onValueChange = { email = it },
-                placeholderText = "xyz@gmail.com"
+                value = otpCode,
+                onValueChange = { otpCode = it },
+                placeholderText = "Enter 6-digit code"
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Кнопка "Send"
+            // Кнопка "Verify"
             AccentButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                text = "Send",
+                text = "Verify",
                 onClick = {
-                    if (isValidEmail(email)) {
-                        showSuccessDialog = true
-                        onSendClick(email)
-                    } else {
-                        println("Invalid email: $email")
+                    if (otpCode.isNotBlank()) {
+                        onVerifyClick(otpCode)
                     }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Ссылка для повторной отправки
+            Text(
+                text = "Didn't receive code? Resend",
+                fontSize = 14.sp,
+                color = CustomColors.accent,
+                modifier = Modifier.clickable {
+                    println("Resend code")
                 }
             )
         }
 
         Spacer(modifier = Modifier.height(20.dp))
     }
-
-    // Диалог успешной отправки
-    SuccessDialog(
-        show = showSuccessDialog,
-        onDismiss = {
-            showSuccessDialog = false
-            onNavigateToOTP() // Переход на OTP экран при закрытии диалога
-        }
-    )
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun ForgotPasswordScreenPreview() {
-    ForgotPasswordScreen(
+private fun OTPVerificationScreenPreview() {
+    OTPVerificationScreen(
         onBackClick = {},
-        onSendClick = {},
-        onNavigateToOTP = {}
+        onVerifyClick = {}
     )
 }
