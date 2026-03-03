@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.practice_mobilki.data.RetrofitInstance
 import com.example.practice_mobilki.data.model.ForgotPasswordRequest
+import com.example.practice_mobilki.data.model.ForgotPasswordResponse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 class ForgotPasswordViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
@@ -16,9 +19,6 @@ class ForgotPasswordViewModel : ViewModel() {
 
     private val _isSuccess = MutableStateFlow(false)
     val isSuccess: StateFlow<Boolean> = _isSuccess
-
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage
 
     private val _showDialog = MutableStateFlow(false)
     val showDialog: StateFlow<Boolean> = _showDialog
@@ -29,14 +29,27 @@ class ForgotPasswordViewModel : ViewModel() {
     private val _dialogTitle = MutableStateFlow("")
     val dialogTitle: StateFlow<String> = _dialogTitle
 
-    // Упрощенная защита от частых запросов
+    // Для защиты от частых запросов
     private var lastRequestTime = 0L
     private val minRequestInterval = 60000L // 60 секунд между запросами
+    private var requestCount = 0
+    private val maxRequestsPerHour = 5
+    private var blockUntil = 0L
 
     fun forgotPassword(email: String) {
         val currentTime = System.currentTimeMillis()
 
-        // Проверяем, не слишком ли часто отправляем запросы
+        // Проверка на блокировку
+        if (currentTime < blockUntil) {
+            val remainingMinutes = ((blockUntil - currentTime) / 60000) + 1
+            showErrorDialog(
+                "Слишком много запросов",
+                "Достигнут лимит запросов. Пожалуйста, подождите $remainingMinutes мин."
+            )
+            return
+        }
+
+        // Проверка интервала между запросами
         if (currentTime - lastRequestTime < minRequestInterval && lastRequestTime != 0L) {
             val remainingSeconds = (minRequestInterval - (currentTime - lastRequestTime)) / 1000
             showErrorDialog(
@@ -46,13 +59,26 @@ class ForgotPasswordViewModel : ViewModel() {
             return
         }
 
+        // Счетчик запросов
+        requestCount++
+        if (requestCount > maxRequestsPerHour) {
+            blockUntil = currentTime + 3600000 // Блокировка на 1 час
+            showErrorDialog(
+                "Лимит исчерпан",
+                "Вы превысили лимит запросов. Попробуйте через час."
+            )
+            requestCount = 0
+            return
+        }
+
         lastRequestTime = currentTime
 
         viewModelScope.launch {
             _isLoading.value = true
-            _errorMessage.value = null
 
             try {
+                println("📤 Forgot password request for email: $email")
+
                 // Небольшая задержка перед запросом
                 delay(1000)
 
@@ -60,9 +86,12 @@ class ForgotPasswordViewModel : ViewModel() {
                     ForgotPasswordRequest(email = email)
                 )
 
+                println("📥 Response code: ${response.code()}")
+
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body != null && body.success == true) {
+                        println("✅ Forgot password successful")
                         _isSuccess.value = true
                         showSuccessDialog("Успех", "Код восстановления отправлен на ваш email")
                     } else {
@@ -70,22 +99,64 @@ class ForgotPasswordViewModel : ViewModel() {
                         showErrorDialog("Ошибка", errorMsg)
                     }
                 } else {
+                    val errorBody = response.errorBody()?.string()
+                    println("❌ Forgot password failed: ${response.code()}")
+
                     when (response.code()) {
-                        429 -> showErrorDialog(
-                            "Слишком много запросов",
-                            "Сервер временно заблокировал запросы. Попробуйте через несколько минут."
+                        400 -> showErrorDialog(
+                            "Ошибка запроса",
+                            "Некорректный email. Проверьте введенные данные"
                         )
                         404 -> showErrorDialog(
                             "Пользователь не найден",
                             "Пользователь с таким email не зарегистрирован"
                         )
-                        else -> showErrorDialog("Ошибка", "Сервер вернул ошибку: ${response.code()}")
+                        422 -> showErrorDialog(
+                            "Некорректный email",
+                            "Проверьте правильность введенного email"
+                        )
+                        429 -> {
+                            requestCount = maxRequestsPerHour + 1 // Принудительная блокировка
+                            showErrorDialog(
+                                "Слишком много запросов",
+                                "Вы превысили лимит запросов. Попробуйте через час."
+                            )
+                        }
+                        500, 502, 503, 504 -> showErrorDialog(
+                            "Ошибка сервера",
+                            "Сервер временно недоступен. Попробуйте позже"
+                        )
+                        else -> showErrorDialog(
+                            "Ошибка",
+                            "Сервер вернул ошибку: ${response.code()}"
+                        )
                     }
                 }
+            } catch (e: UnknownHostException) {
+                println("❌ No internet connection: ${e.message}")
+                showErrorDialog(
+                    "Ошибка сети",
+                    "Отсутствует подключение к интернету. Проверьте сеть и попробуйте снова"
+                )
+            } catch (e: SocketTimeoutException) {
+                println("❌ Connection timeout: ${e.message}")
+                showErrorDialog(
+                    "Таймаут соединения",
+                    "Сервер не отвечает. Проверьте подключение и попробуйте снова"
+                )
             } catch (e: IOException) {
-                showErrorDialog("Ошибка сети", "Проверьте подключение к интернету")
+                println("❌ Network error: ${e.message}")
+                showErrorDialog(
+                    "Ошибка сети",
+                    "Ошибка соединения: ${e.message}"
+                )
             } catch (e: Exception) {
-                showErrorDialog("Ошибка", e.message ?: "Неизвестная ошибка")
+                println("❌ Exception: ${e.message}")
+                e.printStackTrace()
+                showErrorDialog(
+                    "Ошибка",
+                    e.message ?: "Неизвестная ошибка"
+                )
             } finally {
                 _isLoading.value = false
             }
@@ -110,6 +181,5 @@ class ForgotPasswordViewModel : ViewModel() {
 
     fun resetState() {
         _isSuccess.value = false
-        _errorMessage.value = null
     }
 }

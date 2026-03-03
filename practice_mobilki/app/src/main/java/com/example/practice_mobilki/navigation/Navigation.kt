@@ -26,7 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.practice_mobilki.ui.components.CustomAlertDialog
 import com.example.practice_mobilki.ui.screens.ForgotPasswordScreen
-import com.example.practice_mobilki.ui.screens.OTPVerificationViewModel
+import com.example.practice_mobilki.ui.screens.OTPVerificationScreen
 import com.example.practice_mobilki.ui.screens.SignInScreen
 import com.example.practice_mobilki.ui.screens.SignUpScreen
 import com.example.practice_mobilki.ui.viewmodel.SignInViewModel

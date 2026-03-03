@@ -10,6 +10,8 @@ import com.example.practice_mobilki.data.RetrofitInstance
 import com.example.practice_mobilki.data.model.SignInRequest
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 class SignInViewModel : ViewModel() {
     private val viewModelShowDialog = mutableStateOf(false)
@@ -102,9 +104,25 @@ class SignInViewModel : ViewModel() {
                             "Неверный email или пароль",
                             "Ошибка авторизации"
                         )
+                        403 -> showError(
+                            "Доступ запрещен. Обратитесь в поддержку",
+                            "Ошибка доступа"
+                        )
+                        404 -> showError(
+                            "Пользователь не найден",
+                            "Ошибка входа"
+                        )
                         422 -> showError(
                             "Email не подтвержден. Проверьте почту",
                             "Требуется подтверждение"
+                        )
+                        429 -> showError(
+                            "Слишком много попыток входа. Подождите 5 минут",
+                            "Превышен лимит"
+                        )
+                        500, 502, 503, 504 -> showError(
+                            "Сервер временно недоступен. Попробуйте позже",
+                            "Ошибка сервера"
                         )
                         else -> showError(
                             "Ошибка сервера: ${response.code()}. Попробуйте позже",
@@ -112,19 +130,31 @@ class SignInViewModel : ViewModel() {
                         )
                     }
                 }
+            } catch (e: UnknownHostException) {
+                println("❌ No internet connection: ${e.message}")
+                showError(
+                    "Отсутствует подключение к интернету. Проверьте сеть",
+                    "Ошибка сети"
+                )
+            } catch (e: SocketTimeoutException) {
+                println("❌ Connection timeout: ${e.message}")
+                showError(
+                    "Сервер не отвечает. Проверьте подключение",
+                    "Таймаут соединения"
+                )
             } catch (e: IOException) {
                 println("❌ Network error: ${e.message}")
                 e.printStackTrace()
                 showError(
-                    "Ошибка сети: ${e.message}. Проверьте подключение к интернету",
+                    "Ошибка сети: ${e.message}",
                     "Ошибка соединения"
                 )
             } catch (e: Exception) {
                 println("❌ Exception: ${e.message}")
                 e.printStackTrace()
                 showError(
-                    "Ошибка: ${e.message}",
-                    "Ошибка авторизации"
+                    "Произошла непредвиденная ошибка: ${e.message}",
+                    "Ошибка"
                 )
             } finally {
                 viewModelIsLoading.value = false
