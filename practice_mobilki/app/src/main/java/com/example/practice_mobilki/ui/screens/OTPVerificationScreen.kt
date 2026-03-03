@@ -52,8 +52,7 @@ fun OTPVerificationScreen(
     var timer by remember { mutableStateOf(60) } // 01:00
     var isTimerActive by remember { mutableStateOf(true) }
     var canResend by remember { mutableStateOf(false) }
-
-    // Исправлено: используем .value напрямую, чтобы избежать проблем с делегатами
+    
     val isLoading = viewModel.isLoading.value
     val isSuccess = viewModel.isSuccess.value
     val showDialog = viewModel.showDialog.value
