@@ -18,25 +18,39 @@ import androidx.compose.ui.unit.dp
 import com.example.practice_mobilki.ui.theme.CustomColors
 
 @Composable
-fun CustomTextField(modifier: Modifier = Modifier, value: String, onValueChange: (String) -> Unit, placeholderText: String, trailingIcon : @Composable (() -> Unit)? = null, isEnabled: Boolean = true) {
-    TextField(modifier = modifier,
-              value = value,
-              onValueChange = onValueChange,
-              shape = RoundedCornerShape(14.dp),
-              colors = TextFieldDefaults
-                    .colors(
-                        unfocusedContainerColor = CustomColors.background,
-                        focusedContainerColor = CustomColors.background,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledContainerColor = CustomColors.subTextLight),
+fun CustomTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholderText: String,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isEnabled: Boolean = true
+) {
+    TextField(
+        modifier = modifier,
+        value = value,
+        onValueChange = onValueChange,
+        shape = RoundedCornerShape(14.dp),
+        colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = CustomColors.background,
+            focusedContainerColor = CustomColors.background,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledContainerColor = CustomColors.subTextLight
+        ),
         placeholder = { Text(text = placeholderText, color = CustomColors.hint) },
         trailingIcon = trailingIcon,
-        enabled = isEnabled)
+        enabled = isEnabled
+    )
 }
 
 @Preview
 @Composable
 private fun CustomTextFieldPreview() {
-    CustomTextField(value = "", onValueChange = {}, placeholderText = "xxxxxxxx", isEnabled = false)
+    CustomTextField(
+        value = "",
+        onValueChange = {},
+        placeholderText = "xxxxxxxx",
+        isEnabled = false
+    )
 }

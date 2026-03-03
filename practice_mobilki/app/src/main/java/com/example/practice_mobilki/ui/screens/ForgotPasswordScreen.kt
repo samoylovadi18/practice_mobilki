@@ -32,7 +32,6 @@ import com.example.practice_mobilki.ui.components.AccentButton
 import com.example.practice_mobilki.ui.components.CustomTextField
 import com.example.practice_mobilki.ui.components.SuccessDialog
 import com.example.practice_mobilki.ui.theme.CustomColors
-
 @Composable
 fun ForgotPasswordScreen(
     onBackClick: () -> Unit,

@@ -2,26 +2,28 @@ package com.example.practice_mobilki.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -33,90 +35,90 @@ fun SuccessDialog(
     show: Boolean,
     onDismiss: () -> Unit
 ) {
+    println("SuccessDialog - show: $show")
+
+    LaunchedEffect(show) {
+        println("SuccessDialog LaunchedEffect - show changed to: $show")
+    }
+
     if (show) {
-        Dialog(onDismissRequest = onDismiss) {
+        println("SuccessDialog - Rendering dialog")
+
+        Dialog(onDismissRequest = {
+            println("SuccessDialog - onDismissRequest called")
+            onDismiss()
+        }) {
             Surface(
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(20.dp),
                 color = Color.White,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(0.9f)
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp)
+                        .padding(horizontal = 24.dp, vertical = 32.dp)
                 ) {
-                    // Иконка успеха (с try-catch на случай отсутствия)
+                    // Синий круг с иконкой email поверх
                     Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .background(
-                                color = Color(0xFF4CAF50).copy(alpha = 0.1f),
-                                shape = RoundedCornerShape(40.dp)
-                            ),
+                        modifier = Modifier.size(80.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "✓",
-                            fontSize = 48.sp,
-                            color = Color(0xFF4CAF50),
-                            fontWeight = FontWeight.Bold
+                        // Синий круг из ресурса shape.xml
+                        Image(
+                            painter = painterResource(id = R.drawable.shape),
+                            contentDescription = "Blue Circle Background",
+                            modifier = Modifier.size(80.dp)
+                        )
+
+                        // Иконка email поверх круга из email.xml
+                        Image(
+                            painter = painterResource(id = R.drawable.email),
+                            contentDescription = "Email Icon",
+                            modifier = Modifier.size(40.dp)
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Заголовок
-                    Text(
-                        text = "Забыл Пароль",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Текст
-                    Text(
-                        text = "Введите Свое Учетное Знание\nДля Сброса",
-                        fontSize = 14.sp,
-                        color = CustomColors.hint,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 20.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Сообщение об отправке
-                    Text(
-                        text = "Проверьте Ваш Email\nМы Отправили Код Восстановления\nПароля На Вашу Электронную Почту.",
-                        fontSize = 14.sp,
-                        color = Color.Black,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 20.sp
-                    )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Кнопка ОК
-                    Button(
-                        onClick = onDismiss,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = CustomColors.primary
-                        )
-                    ) {
-                        Text(
-                            text = "ОК",
-                            fontSize = 16.sp,
-                            color = Color.White
-                        )
-                    }
+                    // Заголовок
+                    Text(
+                        text = "Check Your Email",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Текст сообщения
+                    Text(
+                        text = "We have sent a password recovery\ncode to your email address.",
+                        fontSize = 14.sp,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 20.sp
+                    )
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun SuccessDialogPreview() {
+    val showDialog = remember { mutableStateOf(true) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.LightGray.copy(alpha = 0.3f))
+    ) {
+        SuccessDialog(
+            show = showDialog.value,
+            onDismiss = { showDialog.value = false }
+        )
     }
 }
