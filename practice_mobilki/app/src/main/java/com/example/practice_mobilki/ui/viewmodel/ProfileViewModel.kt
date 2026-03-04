@@ -1,4 +1,4 @@
-package com.example.shoestore.ui.viewmodel
+package com.example.practice_mobilki.ui.viewmodel
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateOf
@@ -7,10 +7,10 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.shoestore.data.RetrofitInstance
-import com.example.shoestore.data.model.InsertProfileRequest
-import com.example.shoestore.data.model.ProfileResponse
-import com.example.shoestore.data.service.API_KEY
+import com.example.practice_mobilki.data.RetrofitInstance
+import com.example.practice_mobilki.data.model.InsertProfileRequest
+import com.example.practice_mobilki.data.model.ProfileResponse
+import com.example.practice_mobilki.data.service.API_KEY
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +35,10 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLException
+import kotlin.collections.isEmpty
+import kotlin.jvm.java
+import kotlin.text.isNullOrBlank
+import kotlin.text.isNullOrEmpty
 
 data class ProfileUiState(
     val firstName: String = "",

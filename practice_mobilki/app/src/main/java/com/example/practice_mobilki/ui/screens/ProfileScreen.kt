@@ -3,17 +3,13 @@ package com.example.practice_mobilki.ui.screens
 import HomeWithBottomNavigation
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope.weight
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope.weight
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,7 +26,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,14 +38,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.shoestore.R
-import com.example.shoestore.ui.components.AccentButton
-import com.example.shoestore.ui.components.CustomAlertDialog
-import com.example.shoestore.ui.components.CustomTextField
-import com.example.shoestore.ui.theme.CustomColors
-import com.example.shoestore.ui.theme.TypographyApplication
-import com.example.shoestore.ui.viewmodel.ProfileViewModel
-import kotlin.text.isNotEmpty
+import com.example.practice_mobilki.R
+import com.example.practice_mobilki.ui.components.AccentButton
+import com.example.practice_mobilki.ui.components.CustomAlertDialog
+import com.example.practice_mobilki.ui.components.CustomTextField
+import com.example.practice_mobilki.ui.theme.CustomColors
+import com.example.practice_mobilki.ui.theme.TypographyApplication
+import com.example.practice_mobilki.ui.viewmodel.ProfileViewModel
 
 @Composable
 fun ProfileScreen(
@@ -108,12 +102,37 @@ fun ProfileScreen(
         address = uiState.address
     }
 
+    if (uiState.isLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(CustomColors.background),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Загрузка...",
+                    style = TypographyApplication.bodyMedium16,
+                    color = CustomColors.text
+                )
+            }
+        }
+        return
+    }
+
     Column(
-        modifier = Modifier.fillMaxSize().padding(10.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(25.dp))
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+
+        // Верхняя панель
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Spacer(modifier = Modifier.width(20.dp))
             Image(
                 painter = painterResource(R.drawable.clock_1),
@@ -129,7 +148,7 @@ fun ProfileScreen(
             }
             if (!isEdit) {
                 Box(
-                    modifier = modifier
+                    modifier = Modifier
                         .size(36.dp)
                         .background(
                             color = CustomColors.accent,
@@ -147,7 +166,7 @@ fun ProfileScreen(
                 }
             } else {
                 Box(
-                    modifier = modifier
+                    modifier = Modifier
                         .size(36.dp)
                         .background(
                             color = Color.Transparent,
@@ -157,15 +176,18 @@ fun ProfileScreen(
             }
             Spacer(modifier = Modifier.width(20.dp))
         }
-        Spacer(modifier = Modifier.weight(0.15f))
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Аватар
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .size(96.dp)
                 .background(
                     color = CustomColors.subTextLight,
                     shape = CircleShape
                 )
-                .clickable {},
+                .clickable { if (isEdit) onOpenCamera() },
             contentAlignment = Alignment.Center
         ) {
             val currentImage = profileImage
@@ -186,8 +208,10 @@ fun ProfileScreen(
                 )
             }
         }
+
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "$name $surname", style = TypographyApplication.bodyRegular20)
+
         if (isEdit) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -198,7 +222,11 @@ fun ProfileScreen(
             )
         } else {
             Spacer(modifier = Modifier.height(35.dp))
-            Box(modifier = Modifier.fillMaxWidth().height(65.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(65.dp)
+            ) {
                 Image(
                     painter = painterResource(R.drawable.loyal_card_code),
                     contentDescription = null,
@@ -206,14 +234,17 @@ fun ProfileScreen(
                 )
             }
         }
-        Spacer(modifier = Modifier.weight(1f))
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Поля ввода
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(
                 text = stringResource(R.string.your_name),
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
-            Spacer(modifier = Modifier.height(17.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             CustomTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = name,
@@ -222,14 +253,16 @@ fun ProfileScreen(
                 isEnabled = isEdit
             )
         }
-        Spacer(modifier = Modifier.height(17.dp))
+
+        Spacer(modifier = Modifier.height(12.dp))
+
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(
                 text = stringResource(R.string.last_name),
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
-            Spacer(modifier = Modifier.height(17.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             CustomTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = surname,
@@ -238,14 +271,16 @@ fun ProfileScreen(
                 isEnabled = isEdit
             )
         }
-        Spacer(modifier = Modifier.height(17.dp))
+
+        Spacer(modifier = Modifier.height(12.dp))
+
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(
                 text = stringResource(R.string.address),
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
-            Spacer(modifier = Modifier.height(17.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             CustomTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = address,
@@ -254,14 +289,16 @@ fun ProfileScreen(
                 isEnabled = isEdit
             )
         }
-        Spacer(modifier = Modifier.height(17.dp))
+
+        Spacer(modifier = Modifier.height(12.dp))
+
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(
                 text = stringResource(R.string.phone_number),
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
-            Spacer(modifier = Modifier.height(17.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             CustomTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = phoneNumber,
@@ -270,55 +307,48 @@ fun ProfileScreen(
                 isEnabled = isEdit
             )
         }
-        Spacer(modifier = Modifier.height(17.dp))
+
         Spacer(modifier = Modifier.weight(1f))
+
         if (isEdit) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Spacer(modifier = Modifier.width(20.dp))
-                AccentButton(modifier = Modifier.fillMaxWidth().height(50.dp), onClick = {
-                    if (userId != null && name.isNotEmpty() && surname.isNotEmpty()) {
-                        viewModel.upsertProfile(
-                            userId = userId,
-                            firstname = name,
-                            lastname = surname,
-                            address = address,
-                            phone = phoneNumber,
-                            context = context
-                        )
-                        isEdit = false
-                    } else {
-                        viewModel.showMessage("Заполните обязательные поля")
-                    }
-                }, text = stringResource(R.string.save_npw))
+                AccentButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    onClick = {
+                        if (userId != null && name.isNotBlank() && surname.isNotBlank()) {
+                            viewModel.upsertProfile(
+                                userId = userId,
+                                firstname = name,
+                                lastname = surname,
+                                address = address,
+                                phone = phoneNumber,
+                                context = context
+                            )
+                            isEdit = false
+                        } else {
+                            viewModel.showMessage("Заполните обязательные поля")
+                        }
+                    },
+                    text = stringResource(R.string.save_npw)
+                )
                 Spacer(modifier = Modifier.width(20.dp))
             }
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(16.dp))
         }
-        if (uiState.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(CustomColors.background),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Loading...",
-                        style = TypographyApplication.bodyMedium16,
-                        color = CustomColors.text
-                    )
-                }
-            }
-            return
-        }
+
+        // Нижняя навигация
         HomeWithBottomNavigation(
-            4,
+            selectedNumber = 4,
             onHome = onHome,
             onFavorite = onFavorite,
             onNotification = onNotification,
-            onCart = onCart
+            onCart = onCart,
+            onProfile = onProfile
         )
+
         CustomAlertDialog(
             show = viewModel.showDialog.value,
             onDismiss = { viewModel.hideDialog() },

@@ -31,12 +31,11 @@ import com.example.practice_mobilki.ui.screens.ForgotPasswordScreen
 import com.example.practice_mobilki.ui.screens.Home
 import com.example.practice_mobilki.ui.screens.OnboardingScreen
 import com.example.practice_mobilki.ui.screens.OtpVerificationScreen
+import com.example.practice_mobilki.ui.screens.ProfileScreen
 import com.example.practice_mobilki.ui.screens.SignInScreen
 import com.example.practice_mobilki.ui.screens.SignUpScreen
-import com.example.practice_mobilki.ui.screens.StartJourney
-import com.example.practice_mobilki.ui.screens.WelcomeScreen
-import com.example.practice_mobilki.ui.screens.YouHavePower
 import com.example.practice_mobilki.ui.viewmodel.ProductsViewModel
+import com.example.practice_mobilki.ui.viewmodel.ProfileViewModel
 import com.example.practice_mobilki.ui.viewmodel.SignInViewModel
 import com.example.practice_mobilki.ui.viewmodel.SignUpViewModel
 import com.example.practice_mobilki.ui.viewmodel.VerifyOTPViewModel
@@ -88,7 +87,6 @@ fun AppNavHost(
             LaunchedEffect(isSignInSuccessful) {
                 if (isSignInSuccessful) {
                     viewModel.resetSignInState()
-                    // После успешного входа переходим на онбординг
                     navController.navigate(Screen.Onboarding.route) {
                         popUpTo(Screen.SignIn.route) { inclusive = true }
                     }
@@ -227,36 +225,58 @@ fun AppNavHost(
             )
         }
 
-        // ЭКРАН ПРОФИЛЯ (заглушка)
+        // ЭКРАН ПРОФИЛЯ
         composable(route = Screen.Profile.route) {
-            ProfilePlaceholder(
-                onBack = {
-                    navController.popBackStack()
-                }
+            val profileViewModel: ProfileViewModel = viewModel()
+
+            ProfileScreen(
+                onProfile = { /* Уже на экране профиля */ },
+                onHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = false }
+                    }
+                },
+                onFavorite = {
+                    navController.navigate(Screen.Favorite.route)
+                },
+                onNotification = {
+                    navController.navigate(Screen.Notification.route)
+                },
+                onCart = {
+                    navController.navigate(Screen.Cart.route)
+                },
+                onOpenCamera = {
+                    // TODO: Добавить логику открытия камеры
+                    profileViewModel.onOpenCamera()
+                },
+                viewModel = profileViewModel
             )
         }
 
-        // ЭКРАН ИЗБРАННОГО (заглушка)
+        // ЭКРАН ИЗБРАННОГО (временно заглушка)
         composable(route = Screen.Favorite.route) {
-            ProfilePlaceholder(
+            PlaceholderScreen(
+                title = "Избранное",
                 onBack = {
                     navController.popBackStack()
                 }
             )
         }
 
-        // ЭКРАН КОРЗИНЫ (заглушка)
+        // ЭКРАН КОРЗИНЫ (временно заглушка)
         composable(route = Screen.Cart.route) {
-            ProfilePlaceholder(
+            PlaceholderScreen(
+                title = "Корзина",
                 onBack = {
                     navController.popBackStack()
                 }
             )
         }
 
-        // ЭКРАН УВЕДОМЛЕНИЙ (заглушка)
+        // ЭКРАН УВЕДОМЛЕНИЙ (временно заглушка)
         composable(route = Screen.Notification.route) {
-            ProfilePlaceholder(
+            PlaceholderScreen(
+                title = "Уведомления",
                 onBack = {
                     navController.popBackStack()
                 }
@@ -265,9 +285,10 @@ fun AppNavHost(
     }
 }
 
-// ЗАГЛУШКА ДЛЯ ПРОФИЛЯ
+// Универсальная заглушка для экранов в разработке
 @Composable
-fun ProfilePlaceholder(
+fun PlaceholderScreen(
+    title: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -280,7 +301,7 @@ fun ProfilePlaceholder(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Profile Screen (В разработке)",
+                text = "$title (В разработке)",
                 fontSize = 20.sp
             )
             Spacer(modifier = Modifier.height(16.dp))
