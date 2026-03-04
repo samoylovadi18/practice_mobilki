@@ -58,7 +58,6 @@ fun ForgotPasswordScreen(
     var showSuccessDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
-    // Правильный способ получения значений из StateFlow
     val isLoading by viewModel.isLoading.collectAsState()
     val isSuccess by viewModel.isSuccess.collectAsState()
     val showDialog by viewModel.showDialog.collectAsState()
