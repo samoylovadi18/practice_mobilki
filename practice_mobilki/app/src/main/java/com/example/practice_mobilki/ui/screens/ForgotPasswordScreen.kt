@@ -76,7 +76,7 @@ fun ForgotPasswordScreen(
         }
     }
 
-    // ОДИНАКОВЫЙ ДИЗАЙН для портрета и ландшафта
+    // для портрета и ландшафта
     Column(
         modifier = modifier
             .fillMaxSize()
