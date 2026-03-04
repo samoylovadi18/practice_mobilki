@@ -50,6 +50,7 @@ fun Home(
     onFavorite: () -> Unit = {},
     onNotification: () -> Unit = {},
     onCart: () -> Unit = {},
+    onNavigateToOutdoor: () -> Unit = {}, // НОВЫЙ ПАРАМЕТР
     viewModel: ProductsViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -181,7 +182,13 @@ fun Home(
 
                 Box(
                     modifier = Modifier
-                        .clickable { selectedCategory = index }
+                        .clickable {
+                            selectedCategory = index
+                            // ПРОВЕРЯЕМ КАТЕГОРИЮ И ПЕРЕХОДИМ
+                            if (category == "Outdoor") {
+                                onNavigateToOutdoor()
+                            }
+                        }
                         .background(
                             color = if (isSelected) CustomColors.accent else CustomColors.block,
                             shape = RoundedCornerShape(8.dp)
@@ -301,7 +308,7 @@ fun Home(
             return
         }
 
-        // Исправлено: передаем правильные параметры
+        // Нижняя навигация
         HomeWithBottomNavigation(
             onProfile = onProfile,
             onNotification = onNotification,
@@ -320,6 +327,7 @@ fun HomePreview() {
         onFavorite = {},
         onNotification = {},
         onCart = {},
+        onNavigateToOutdoor = {},
         viewModel = ProductsViewModel()
     )
 }

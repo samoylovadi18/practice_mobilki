@@ -31,6 +31,7 @@ import com.example.practice_mobilki.ui.screens.ForgotPasswordScreen
 import com.example.practice_mobilki.ui.screens.Home
 import com.example.practice_mobilki.ui.screens.OnboardingScreen
 import com.example.practice_mobilki.ui.screens.OtpVerificationScreen
+import com.example.practice_mobilki.ui.screens.OutdoorCategoryScreen
 import com.example.practice_mobilki.ui.screens.ProfileScreen
 import com.example.practice_mobilki.ui.screens.SignInScreen
 import com.example.practice_mobilki.ui.screens.SignUpScreen
@@ -52,6 +53,7 @@ sealed class Screen(val route: String) {
     data object Favorite : Screen("favorite")
     data object Cart : Screen("cart")
     data object Notification : Screen("notification")
+    data object OutdoorCategory : Screen("outdoor_category") // НОВЫЙ ЭКРАН
 
     // Для маршрута с параметром
     fun withArgs(vararg args: String): String {
@@ -220,8 +222,24 @@ fun AppNavHost(
                 onCart = {
                     navController.navigate(Screen.Cart.route)
                 },
+                onNavigateToOutdoor = { // ДОБАВЛЕНО
+                    navController.navigate(Screen.OutdoorCategory.route)
+                },
                 viewModel = productsViewModel,
                 modifier = Modifier
+            )
+        }
+
+        // ЭКРАН OUTDOOR КАТЕГОРИИ - НОВЫЙ
+        composable(route = Screen.OutdoorCategory.route) {
+            OutdoorCategoryScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onProductClick = { productId ->
+                    // TODO: Переход на детальную страницу товара
+                    println("Clicked on product: $productId")
+                }
             )
         }
 
@@ -246,7 +264,6 @@ fun AppNavHost(
                     navController.navigate(Screen.Cart.route)
                 },
                 onOpenCamera = {
-                    // TODO: Добавить логику открытия камеры
                     profileViewModel.onOpenCamera()
                 },
                 viewModel = profileViewModel
