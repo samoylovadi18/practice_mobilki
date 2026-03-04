@@ -78,7 +78,6 @@ open class SignUpViewModel : ViewModel() {
                         viewModelIsSignUpSuccessful.value = true
                     }
                 } else {
-                    // Обработка ошибок от сервера
                     val errorBody = response.errorBody()?.string()
                     println("❌ SignUp failed: ${response.code()}")
                     println("❌ Error body: $errorBody")
