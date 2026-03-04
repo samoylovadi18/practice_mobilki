@@ -28,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.practice_mobilki.ui.components.CustomAlertDialog
 import com.example.practice_mobilki.ui.screens.ForgotPasswordScreen
+import com.example.practice_mobilki.ui.screens.OnboardingScreen
 import com.example.practice_mobilki.ui.screens.OtpVerificationScreen
 import com.example.practice_mobilki.ui.screens.SignInScreen
 import com.example.practice_mobilki.ui.screens.SignUpScreen
@@ -37,6 +38,7 @@ import com.example.practice_mobilki.ui.viewmodel.VerifyOTPViewModel
 
 // Класс для хранения маршрутов
 sealed class Screen(val route: String) {
+    data object Onboarding : Screen("onboarding")
     data object SignUp : Screen("sign_up")
     data object SignIn : Screen("sign_in")
     data object ForgotPassword : Screen("forgot_password")
@@ -58,7 +60,7 @@ sealed class Screen(val route: String) {
 @Composable
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screen.SignIn.route,
+    startDestination: String = Screen.SignIn.route, // Оставляем SignIn как стартовый
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -70,43 +72,6 @@ fun AppNavHost(
         popEnterTransition = { fadeIn(animationSpec = tween(700)) },
         popExitTransition = { fadeOut(animationSpec = tween(700)) }
     ) {
-        // ЭКРАН РЕГИСТРАЦИИ
-        composable(route = Screen.SignUp.route) {
-            val viewModel: SignUpViewModel = viewModel()
-            val isSignUpSuccessful by viewModel.isSignUpSuccessful
-            val userEmail by viewModel.userEmail
-
-            LaunchedEffect(isSignUpSuccessful) {
-                if (isSignUpSuccessful) {
-                    viewModel.resetSignUpState()
-                    // Переход на OTP с email пользователя
-                    navController.navigate(Screen.OTPVerification.withArgs(userEmail)) {
-                        popUpTo(Screen.SignUp.route) { inclusive = true }
-                    }
-                }
-            }
-
-            SignUpScreen(
-                viewModel = viewModel,
-                onSignUpSuccess = { },
-                toSignInScreen = {
-                    navController.navigate(Screen.SignIn.route)
-                },
-                onBackClick = {
-                    navController.popBackStack()
-                }
-            )
-
-            if (viewModel.showDialog.value) {
-                CustomAlertDialog(
-                    show = viewModel.showDialog.value,
-                    onDismiss = { viewModel.hideDialog() },
-                    text = viewModel.dialogText.value,
-                    title = viewModel.dialogTitle.value
-                )
-            }
-        }
-
         // ЭКРАН ВХОДА
         composable(route = Screen.SignIn.route) {
             val viewModel: SignInViewModel = viewModel()
@@ -115,7 +80,8 @@ fun AppNavHost(
             LaunchedEffect(isSignInSuccessful) {
                 if (isSignInSuccessful) {
                     viewModel.resetSignInState()
-                    navController.navigate(Screen.Home.route) {
+                    // После успешного входа переходим на онбординг
+                    navController.navigate(Screen.Onboarding.route) {
                         popUpTo(Screen.SignIn.route) { inclusive = true }
                     }
                 }
@@ -145,6 +111,53 @@ fun AppNavHost(
             }
         }
 
+        // ЭКРАН ОНБОРДИНГА - добавляем после SignIn
+        composable(route = Screen.Onboarding.route) {
+            OnboardingScreen(
+                onOnboardingComplete = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Onboarding.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // ЭКРАН РЕГИСТРАЦИИ
+        composable(route = Screen.SignUp.route) {
+            val viewModel: SignUpViewModel = viewModel()
+            val isSignUpSuccessful by viewModel.isSignUpSuccessful
+            val userEmail by viewModel.userEmail
+
+            LaunchedEffect(isSignUpSuccessful) {
+                if (isSignUpSuccessful) {
+                    viewModel.resetSignUpState()
+                    navController.navigate(Screen.OTPVerification.withArgs(userEmail)) {
+                        popUpTo(Screen.SignUp.route) { inclusive = true }
+                    }
+                }
+            }
+
+            SignUpScreen(
+                viewModel = viewModel,
+                onSignUpSuccess = { },
+                toSignInScreen = {
+                    navController.navigate(Screen.SignIn.route)
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
+
+            if (viewModel.showDialog.value) {
+                CustomAlertDialog(
+                    show = viewModel.showDialog.value,
+                    onDismiss = { viewModel.hideDialog() },
+                    text = viewModel.dialogText.value,
+                    title = viewModel.dialogTitle.value
+                )
+            }
+        }
+
         // ЭКРАН ВОССТАНОВЛЕНИЯ ПАРОЛЯ
         composable(route = Screen.ForgotPassword.route) {
             ForgotPasswordScreen(
@@ -157,7 +170,7 @@ fun AppNavHost(
             )
         }
 
-        // ЭКРАН OTP VERIFICATION - ИСПРАВЛЕНО!
+        // ЭКРАН OTP VERIFICATION
         composable(
             route = "${Screen.OTPVerification.route}/{email}",
             arguments = listOf(
@@ -174,7 +187,6 @@ fun AppNavHost(
                 modifier = Modifier,
                 viewModel = viewModel,
                 onVerifyOTPSuccess = {
-                    // После успешной верификации переходим на вход
                     navController.navigate(Screen.SignIn.route) {
                         popUpTo(Screen.OTPVerification.route) { inclusive = true }
                     }
