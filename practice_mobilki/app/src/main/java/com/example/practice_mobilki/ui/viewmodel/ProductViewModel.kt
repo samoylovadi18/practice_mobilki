@@ -47,8 +47,6 @@ class ProductsViewModel : ViewModel() {
                     val allProducts = allProductsResponse.body() ?: emptyList()
 
                     Log.d("ProductsViewModel", "Total products loaded: ${allProducts.size}")
-
-                    // Фильтруем бестселлеры (упрощенно)
                     val bestSellers = allProducts.filter { it.isBestSeller == true }
 
                     // Берем первые 5 как новые поступления
