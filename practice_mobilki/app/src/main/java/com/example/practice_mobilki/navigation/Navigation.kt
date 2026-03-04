@@ -28,10 +28,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.practice_mobilki.ui.components.CustomAlertDialog
 import com.example.practice_mobilki.ui.screens.ForgotPasswordScreen
+import com.example.practice_mobilki.ui.screens.Home
 import com.example.practice_mobilki.ui.screens.OnboardingScreen
 import com.example.practice_mobilki.ui.screens.OtpVerificationScreen
 import com.example.practice_mobilki.ui.screens.SignInScreen
 import com.example.practice_mobilki.ui.screens.SignUpScreen
+import com.example.practice_mobilki.ui.screens.StartJourney
+import com.example.practice_mobilki.ui.screens.WelcomeScreen
+import com.example.practice_mobilki.ui.screens.YouHavePower
+import com.example.practice_mobilki.ui.viewmodel.ProductsViewModel
 import com.example.practice_mobilki.ui.viewmodel.SignInViewModel
 import com.example.practice_mobilki.ui.viewmodel.SignUpViewModel
 import com.example.practice_mobilki.ui.viewmodel.VerifyOTPViewModel
@@ -45,6 +50,9 @@ sealed class Screen(val route: String) {
     data object OTPVerification : Screen("otp_verification")
     data object Home : Screen("home")
     data object Profile : Screen("profile")
+    data object Favorite : Screen("favorite")
+    data object Cart : Screen("cart")
+    data object Notification : Screen("notification")
 
     // Для маршрута с параметром
     fun withArgs(vararg args: String): String {
@@ -60,7 +68,7 @@ sealed class Screen(val route: String) {
 @Composable
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Screen.SignIn.route, // Оставляем SignIn как стартовый
+    startDestination: String = Screen.SignIn.route,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -197,17 +205,57 @@ fun AppNavHost(
             )
         }
 
-        // ГЛАВНЫЙ ЭКРАН
+        // ГЛАВНЫЙ ЭКРАН - ИСПРАВЛЕНО (убрал onHome)
         composable(route = Screen.Home.route) {
-            HomePlaceholder(
-                onProfileClick = {
+            val productsViewModel: ProductsViewModel = viewModel()
+
+            Home(
+                onProfile = {
                     navController.navigate(Screen.Profile.route)
+                },
+                onFavorite = {
+                    navController.navigate(Screen.Favorite.route)
+                },
+                onNotification = {
+                    navController.navigate(Screen.Notification.route)
+                },
+                onCart = {
+                    navController.navigate(Screen.Cart.route)
+                },
+                viewModel = productsViewModel,
+                modifier = Modifier
+            )
+        }
+
+        // ЭКРАН ПРОФИЛЯ (заглушка)
+        composable(route = Screen.Profile.route) {
+            ProfilePlaceholder(
+                onBack = {
+                    navController.popBackStack()
                 }
             )
         }
 
-        // ЭКРАН ПРОФИЛЯ
-        composable(route = Screen.Profile.route) {
+        // ЭКРАН ИЗБРАННОГО (заглушка)
+        composable(route = Screen.Favorite.route) {
+            ProfilePlaceholder(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // ЭКРАН КОРЗИНЫ (заглушка)
+        composable(route = Screen.Cart.route) {
+            ProfilePlaceholder(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // ЭКРАН УВЕДОМЛЕНИЙ (заглушка)
+        composable(route = Screen.Notification.route) {
             ProfilePlaceholder(
                 onBack = {
                     navController.popBackStack()
@@ -217,36 +265,7 @@ fun AppNavHost(
     }
 }
 
-// ЗАГЛУШКА ДЛЯ HOME
-@Composable
-fun HomePlaceholder(
-    onProfileClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Scaffold { paddingValues ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Home Screen",
-                fontSize = 20.sp
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = onProfileClick,
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text("Перейти в профиль")
-            }
-        }
-    }
-}
-
-// ЗАГЛУШКА ДЛЯ PROFILE
+// ЗАГЛУШКА ДЛЯ ПРОФИЛЯ
 @Composable
 fun ProfilePlaceholder(
     onBack: () -> Unit,
@@ -261,7 +280,7 @@ fun ProfilePlaceholder(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Profile Screen",
+                text = "Profile Screen (В разработке)",
                 fontSize = 20.sp
             )
             Spacer(modifier = Modifier.height(16.dp))
