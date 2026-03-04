@@ -230,7 +230,7 @@ fun AppNavHost(
             val profileViewModel: ProfileViewModel = viewModel()
 
             ProfileScreen(
-                onProfile = { /* Уже на экране профиля */ },
+                onProfile = { },
                 onHome = {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Home.route) { inclusive = false }
