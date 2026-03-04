@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.practice_mobilki.ui.components.CustomAlertDialog
+import com.example.practice_mobilki.ui.screens.FavoriteScreen
 import com.example.practice_mobilki.ui.screens.ForgotPasswordScreen
 import com.example.practice_mobilki.ui.screens.Home
 import com.example.practice_mobilki.ui.screens.OnboardingScreen
@@ -53,7 +54,7 @@ sealed class Screen(val route: String) {
     data object Favorite : Screen("favorite")
     data object Cart : Screen("cart")
     data object Notification : Screen("notification")
-    data object OutdoorCategory : Screen("outdoor_category") // НОВЫЙ ЭКРАН
+    data object OutdoorCategory : Screen("outdoor_category")
 
     // Для маршрута с параметром
     fun withArgs(vararg args: String): String {
@@ -222,7 +223,7 @@ fun AppNavHost(
                 onCart = {
                     navController.navigate(Screen.Cart.route)
                 },
-                onNavigateToOutdoor = { // ДОБАВЛЕНО
+                onNavigateToOutdoor = {
                     navController.navigate(Screen.OutdoorCategory.route)
                 },
                 viewModel = productsViewModel,
@@ -230,7 +231,7 @@ fun AppNavHost(
             )
         }
 
-        // ЭКРАН OUTDOOR КАТЕГОРИИ - НОВЫЙ
+        // ЭКРАН OUTDOOR КАТЕГОРИИ
         composable(route = Screen.OutdoorCategory.route) {
             OutdoorCategoryScreen(
                 onBackClick = {
@@ -270,12 +271,19 @@ fun AppNavHost(
             )
         }
 
-        // ЭКРАН ИЗБРАННОГО (временно заглушка)
+        // ЭКРАН ИЗБРАННОГО (ТЕПЕРЬ НАСТОЯЩИЙ, НЕ ЗАГЛУШКА)
         composable(route = Screen.Favorite.route) {
-            PlaceholderScreen(
-                title = "Избранное",
-                onBack = {
+            FavoriteScreen(
+                onBackClick = {
                     navController.popBackStack()
+                },
+                onProductClick = { productId ->
+                    // TODO: Переход на детальную страницу товара
+                    println("Clicked on favorite product: $productId")
+                },
+                onRemoveFromFavorite = { productId ->
+                    // TODO: Здесь будет логика удаления из избранного через ViewModel
+                    println("Remove from favorites: $productId")
                 }
             )
         }
