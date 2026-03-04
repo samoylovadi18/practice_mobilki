@@ -52,7 +52,6 @@ fun ForgotPasswordScreen(
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
-    // Адаптивные размеры ТОЛЬКО для отступов
     val horizontalPadding = if (isLandscape) 48.dp else 20.dp
 
     var email by remember { mutableStateOf("") }
