@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Practice_mobilki"
-        android:usesCleartextTraffic="true"> <!-- ДОБАВЬТЕ ЭТО ДЛЯ HTTP -->
+        android:usesCleartextTraffic="true">
 
         <activity
             android:name=".MainActivity"
