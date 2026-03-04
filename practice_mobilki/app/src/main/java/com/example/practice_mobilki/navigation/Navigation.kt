@@ -205,7 +205,7 @@ fun AppNavHost(
             )
         }
 
-        // ГЛАВНЫЙ ЭКРАН - ИСПРАВЛЕНО (убрал onHome)
+        // ГЛАВНЫЙ ЭКРАН
         composable(route = Screen.Home.route) {
             val productsViewModel: ProductsViewModel = viewModel()
 
