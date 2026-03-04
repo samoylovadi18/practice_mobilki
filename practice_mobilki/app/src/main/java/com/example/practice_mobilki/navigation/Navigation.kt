@@ -111,7 +111,7 @@ fun AppNavHost(
             }
         }
 
-        // ЭКРАН ОНБОРДИНГА - добавляем после SignIn
+        // ЭКРАН ОНБОРДИНГА
         composable(route = Screen.Onboarding.route) {
             OnboardingScreen(
                 onOnboardingComplete = {

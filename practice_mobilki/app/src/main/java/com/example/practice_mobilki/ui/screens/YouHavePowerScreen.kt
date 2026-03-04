@@ -88,7 +88,7 @@ fun YouHavePower(
 
         BlockButton(
             onClick = onNext,
-            text = "Next", 
+            text = "Next",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
