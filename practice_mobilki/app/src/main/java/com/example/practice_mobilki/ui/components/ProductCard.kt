@@ -38,7 +38,7 @@ fun ProductCard(
     product: ProductResponse,
     isFavourite: Boolean = false,
     onCheckedChange: (Boolean) -> Unit,
-    onAddToCart: () -> Unit, // Изменили на () -> Unit
+    onAddToCart: () -> Unit, 
     isAtCart: Boolean = false
 ) {
     val priceFormatted = String.format("%.2f", product.cost)
