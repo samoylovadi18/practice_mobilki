@@ -20,7 +20,7 @@ fun CustomTextField(
     placeholderText: String,
     trailingIcon: @Composable (() -> Unit)? = null,
     isEnabled: Boolean = true,
-    isError: Boolean = false // НОВЫЙ ПАРАМЕТР для отображения ошибки
+    isError: Boolean = false 
 ) {
     TextField(
         modifier = modifier,
