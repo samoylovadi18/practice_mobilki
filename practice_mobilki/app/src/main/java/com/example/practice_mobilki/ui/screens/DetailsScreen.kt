@@ -260,7 +260,7 @@ fun DetailsScreenPreview() {
         title = "PUMA CA Pro Classic",
         categoryId = "cat1",
         cost = 13999.0f,
-        description = "", // Не используем description из модели
+        description = "",
         isBestSeller = true
     )
 
