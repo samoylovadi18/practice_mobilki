@@ -112,8 +112,6 @@ fun DetailsScreen(
                 )
             }
         }
-
-        // Скроллируемый контент
         Column(
             modifier = Modifier
                 .weight(1f)
