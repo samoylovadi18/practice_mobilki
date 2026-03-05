@@ -50,7 +50,8 @@ fun Home(
     onFavorite: () -> Unit = {},
     onNotification: () -> Unit = {},
     onCart: () -> Unit = {},
-    onNavigateToOutdoor: () -> Unit = {}, // НОВЫЙ ПАРАМЕТР
+    onNavigateToOutdoor: () -> Unit = {},
+    onProductClick: (String) -> Unit = {}, // ЭТОТ ПАРАМЕТР НУЖЕН ДЛЯ ПЕРЕХОДА
     viewModel: ProductsViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -65,22 +66,13 @@ fun Home(
         viewModel.loadProducts()
     }
 
-    LaunchedEffect(uiState) {
-        Log.d("HomeScreen", "UI State updated:")
-        Log.d("HomeScreen", "  isLoading: ${uiState.isLoading}")
-        Log.d("HomeScreen", "  error: ${uiState.error}")
-        Log.d("HomeScreen", "  total products: ${uiState.products.size}")
-        Log.d("HomeScreen", "  best sellers: ${uiState.bestSellers.size}")
-        Log.d("HomeScreen", "  new arrivals: ${uiState.newArrivals.size}")
-    }
-
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Верхняя панель с часами и сумкой
+        // Верхняя панель
         Spacer(modifier = Modifier.height(25.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -90,8 +82,7 @@ fun Home(
             Image(
                 painter = painterResource(R.drawable.clock_1),
                 contentDescription = null,
-                modifier = Modifier.size(25.dp),
-                alpha = 1f
+                modifier = Modifier.size(25.dp)
             )
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                 Text(
@@ -102,24 +93,20 @@ fun Home(
             Box(
                 modifier = Modifier
                     .size(36.dp)
-                    .background(
-                        color = CustomColors.block,
-                        shape = CircleShape
-                    )
+                    .background(CustomColors.block, CircleShape)
                     .clickable { onCart() },
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(R.drawable.bag),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    alpha = 1f
+                    modifier = Modifier.size(24.dp)
                 )
             }
             Spacer(modifier = Modifier.width(20.dp))
         }
 
-        // Поисковая строка
+        // Поиск
         Spacer(modifier = Modifier.height(21.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -135,18 +122,14 @@ fun Home(
             Box(
                 modifier = Modifier
                     .size(45.dp)
-                    .background(
-                        color = CustomColors.accent,
-                        shape = CircleShape
-                    )
-                    .clickable { /* Фильтр */ },
+                    .background(CustomColors.accent, CircleShape)
+                    .clickable { },
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = painterResource(R.drawable.sliders),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    alpha = 1f,
+                    modifier = Modifier.size(24.dp)
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
@@ -165,7 +148,7 @@ fun Home(
                 text = stringResource(R.string.see_all),
                 style = TypographyApplication.bodyRegular12,
                 color = CustomColors.accent,
-                modifier = Modifier.clickable { /* Показать все категории */ }
+                modifier = Modifier.clickable { onNavigateToOutdoor() }
             )
             Spacer(modifier = Modifier.width(20.dp))
         }
@@ -184,7 +167,6 @@ fun Home(
                     modifier = Modifier
                         .clickable {
                             selectedCategory = index
-                            // ПРОВЕРЯЕМ КАТЕГОРИЮ И ПЕРЕХОДИМ
                             if (category == "Outdoor") {
                                 onNavigateToOutdoor()
                             }
@@ -208,7 +190,7 @@ fun Home(
             }
         }
 
-        // Раздел "Популярное"
+        // Популярное
         Spacer(modifier = Modifier.height(23.dp))
         Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.width(20.dp))
@@ -221,14 +203,14 @@ fun Home(
                 text = stringResource(R.string.see_all),
                 style = TypographyApplication.bodyRegular12,
                 color = CustomColors.accent,
-                modifier = Modifier.clickable { /* Показать все популярные */ }
+                modifier = Modifier.clickable { onNavigateToOutdoor() }
             )
             Spacer(modifier = Modifier.width(20.dp))
         }
 
         Spacer(modifier = Modifier.height(34.dp))
 
-        // Отображаем BEST SELLERS (популярные товары)
+        // Товары
         if (uiState.bestSellers.isNotEmpty()) {
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -249,20 +231,14 @@ fun Home(
                         onAddToCart = {
                             viewModel.addToCart(product.id)
                         },
-                        isAtCart = isAtCart
+                        isAtCart = isAtCart,
+                        onClick = { onProductClick(product.id) } // ВОТ ТУТ ПЕРЕХОД
                     )
                 }
             }
-        } else {
-            Text(
-                text = "No popular shoes",
-                style = TypographyApplication.bodyRegular12,
-                color = CustomColors.hint,
-                modifier = Modifier.padding(20.dp)
-            )
         }
 
-        // Раздел "Новинки"
+        // Новинки
         Spacer(modifier = Modifier.height(21.dp))
         Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.width(20.dp))
@@ -275,7 +251,7 @@ fun Home(
                 text = stringResource(R.string.see_all),
                 style = TypographyApplication.bodyRegular12,
                 color = CustomColors.accent,
-                modifier = Modifier.clickable { /* Показать все новинки */ }
+                modifier = Modifier.clickable { onNavigateToOutdoor() }
             )
             Spacer(modifier = Modifier.width(20.dp))
         }
@@ -285,7 +261,7 @@ fun Home(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(91.dp)
-                .clickable { /* Открыть акцию */ }
+                .clickable { }
         ) {
             Image(
                 painter = painterResource(R.drawable.arrivals_poster),
@@ -310,10 +286,12 @@ fun Home(
 
         // Нижняя навигация
         HomeWithBottomNavigation(
-            onProfile = onProfile,
-            onNotification = onNotification,
+            selectedNumber = 0,
+            onHome = { /* Уже на главной */ },
             onFavorite = onFavorite,
-            onCart = onCart
+            onNotification = onNotification,
+            onCart = onCart,
+            onProfile = onProfile
         )
     }
 }
@@ -328,6 +306,7 @@ fun HomePreview() {
         onNotification = {},
         onCart = {},
         onNavigateToOutdoor = {},
+        onProductClick = {},
         viewModel = ProductsViewModel()
     )
 }

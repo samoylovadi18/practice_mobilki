@@ -4,6 +4,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.practice_mobilki.ui.components.CustomAlertDialog
+import com.example.practice_mobilki.ui.screens.DetailsScreen
 import com.example.practice_mobilki.ui.screens.FavoriteScreen
 import com.example.practice_mobilki.ui.screens.ForgotPasswordScreen
 import com.example.practice_mobilki.ui.screens.Home
@@ -55,8 +57,8 @@ sealed class Screen(val route: String) {
     data object Cart : Screen("cart")
     data object Notification : Screen("notification")
     data object OutdoorCategory : Screen("outdoor_category")
+    data object Details : Screen("details")
 
-    // Для маршрута с параметром
     fun withArgs(vararg args: String): String {
         return buildString {
             append(route)
@@ -65,6 +67,8 @@ sealed class Screen(val route: String) {
             }
         }
     }
+
+    fun detailsWithId(productId: String): String = "details/$productId"
 }
 
 @Composable
@@ -226,8 +230,10 @@ fun AppNavHost(
                 onNavigateToOutdoor = {
                     navController.navigate(Screen.OutdoorCategory.route)
                 },
-                viewModel = productsViewModel,
-                modifier = Modifier
+                onProductClick = { productId ->
+                    navController.navigate(Screen.Details.detailsWithId(productId))
+                },
+                viewModel = productsViewModel
             )
         }
 
@@ -238,10 +244,40 @@ fun AppNavHost(
                     navController.popBackStack()
                 },
                 onProductClick = { productId ->
-                    // TODO: Переход на детальную страницу товара
-                    println("Clicked on product: $productId")
+                    navController.navigate(Screen.Details.detailsWithId(productId))
                 }
             )
+        }
+
+        // ЭКРАН ДЕТАЛЕЙ ТОВАРА
+        composable(
+            route = "details/{productId}",
+            arguments = listOf(navArgument("productId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId") ?: ""
+            val productsViewModel: ProductsViewModel = viewModel()
+
+            val product = productsViewModel.uiState.value.products.find { it.id == productId }
+
+            if (product != null) {
+                DetailsScreen(
+                    product = product,
+                    onBackClick = { navController.popBackStack() },
+                    onAddToCart = {
+                        productsViewModel.addToCart(productId)
+                    },
+                    onToggleFavorite = {
+                        productsViewModel.toggleFavorite(productId)
+                    }
+                )
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Товар не найден")
+                }
+            }
         }
 
         // ЭКРАН ПРОФИЛЯ
@@ -271,24 +307,22 @@ fun AppNavHost(
             )
         }
 
-        // ЭКРАН ИЗБРАННОГО (ТЕПЕРЬ НАСТОЯЩИЙ, НЕ ЗАГЛУШКА)
+        // ЭКРАН ИЗБРАННОГО
         composable(route = Screen.Favorite.route) {
             FavoriteScreen(
                 onBackClick = {
                     navController.popBackStack()
                 },
                 onProductClick = { productId ->
-                    // TODO: Переход на детальную страницу товара
-                    println("Clicked on favorite product: $productId")
+                    navController.navigate(Screen.Details.detailsWithId(productId))
                 },
                 onRemoveFromFavorite = { productId ->
-                    // TODO: Здесь будет логика удаления из избранного через ViewModel
-                    println("Remove from favorites: $productId")
+                    // Логика удаления
                 }
             )
         }
 
-        // ЭКРАН КОРЗИНЫ (временно заглушка)
+        // ЭКРАН КОРЗИНЫ (заглушка)
         composable(route = Screen.Cart.route) {
             PlaceholderScreen(
                 title = "Корзина",
@@ -298,7 +332,7 @@ fun AppNavHost(
             )
         }
 
-        // ЭКРАН УВЕДОМЛЕНИЙ (временно заглушка)
+        // ЭКРАН УВЕДОМЛЕНИЙ (заглушка)
         composable(route = Screen.Notification.route) {
             PlaceholderScreen(
                 title = "Уведомления",
@@ -310,7 +344,7 @@ fun AppNavHost(
     }
 }
 
-// Универсальная заглушка для экранов в разработке
+// Универсальная заглушка
 @Composable
 fun PlaceholderScreen(
     title: String,

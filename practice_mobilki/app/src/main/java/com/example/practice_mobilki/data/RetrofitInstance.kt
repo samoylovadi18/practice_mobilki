@@ -13,7 +13,7 @@ object RetrofitInstance {
     const val SUPABASE_URL = "https://lvcfrtimnqfmdbvdsazn.supabase.co"
 
     // Флаг для включения/выключения прокси
-    private const val USE_PROXY = false // Изменить на true для использования прокси
+    private const val USE_PROXY = true // Изменить на true для использования прокси
 
     // Настройки прокси
     private const val PROXY_HOST = "10.207.106.59"

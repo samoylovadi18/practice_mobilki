@@ -30,18 +30,23 @@ import com.example.practice_mobilki.R
 import com.example.practice_mobilki.data.model.ProductResponse
 import com.example.practice_mobilki.ui.theme.CustomColors
 import com.example.practice_mobilki.ui.theme.TypographyApplication
+import java.text.NumberFormat
+import java.util.Locale
 import kotlin.text.format
-
 @Composable
 fun ProductCard(
     modifier: Modifier = Modifier,
     product: ProductResponse,
     isFavourite: Boolean = false,
     onCheckedChange: (Boolean) -> Unit,
-    onAddToCart: () -> Unit, 
-    isAtCart: Boolean = false
+    onAddToCart: () -> Unit,
+    isAtCart: Boolean = false,
+    onClick: () -> Unit // Добавлен параметр для клика по карточке
 ) {
-    val priceFormatted = String.format("%.2f", product.cost)
+    val priceFormatted = NumberFormat.getCurrencyInstance(Locale("ru", "RU"))
+        .format(product.cost)
+        .replace("RUB", "₽")
+        .replace("руб", "₽")
 
     var localIsFavourite by remember { mutableStateOf(isFavourite) }
     var localIsAtCart by remember { mutableStateOf(isAtCart) }
@@ -58,37 +63,35 @@ fun ProductCard(
         modifier = modifier
             .width(162.dp)
             .height(250.dp)
-            .padding(9.dp)
-            .clip(androidx.compose.foundation.shape.RoundedCornerShape(10.dp))
-            .background(
-                CustomColors.block,
-                androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
-            )
+            .clip(RoundedCornerShape(10.dp))
+            .background(CustomColors.block)
+            .clickable { onClick() } // ВСЯ КАРТОЧКА КЛИКАБЕЛЬНАЯ
     ) {
-        Box(modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+        Box(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
             Box(
-                modifier = modifier
-                    .size(24.dp)
+                modifier = Modifier
+                    .size(28.dp)
                     .background(
-                        color = CustomColors.background,
+                        color = CustomColors.background.copy(alpha = 0.8f),
                         shape = CircleShape,
                     )
                     .clickable {
                         val newValue = !localIsFavourite
                         localIsFavourite = newValue
                         onCheckedChange(newValue)
-                    },
+                    }
+                    .align(Alignment.TopEnd),
                 contentAlignment = Alignment.Center
             ) {
                 Image(
                     painter = if (localIsFavourite) painterResource(R.drawable.heart_colored)
                     else painterResource(R.drawable.favorite),
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    alpha = 1f,
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
+
         Box(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
@@ -99,40 +102,51 @@ fun ProductCard(
                 modifier = Modifier.size(117.dp, 70.dp)
             )
         }
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = if (product.isBestSeller == true) "BEST SELLER" else "",
-            style = TypographyApplication.bodyRegular12,
-            color = CustomColors.accent,
-            modifier = Modifier.padding(horizontal = 10.dp)
-        )
+
         Spacer(modifier = Modifier.height(8.dp))
+
+        if (product.isBestSeller == true) {
+            Text(
+                text = "BEST SELLER",
+                style = TypographyApplication.bodyRegular12,
+                color = CustomColors.accent,
+                modifier = Modifier.padding(horizontal = 10.dp)
+            )
+        }
+
         Text(
             text = product.title,
-            style = TypographyApplication.bodyRegular16,
-            color = CustomColors.hint,
+            style = TypographyApplication.bodyRegular14,
+            color = CustomColors.text,
             modifier = Modifier.padding(horizontal = 10.dp)
         )
+
         Spacer(modifier = Modifier.weight(1f))
+
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 10.dp, end = 0.dp, bottom = 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "₽$priceFormatted",
+                text = priceFormatted,
                 style = TypographyApplication.bodyRegular14,
                 color = CustomColors.text,
                 modifier = Modifier.padding(horizontal = 10.dp)
             )
+
             Spacer(modifier = Modifier.weight(1f))
+
             Box(
-                modifier = modifier
-                    .size(30.dp)
+                modifier = Modifier
+                    .size(36.dp)
                     .background(
-                        color = CustomColors.accent,
+                        color = if (localIsAtCart) CustomColors.accent.copy(alpha = 0.5f)
+                        else CustomColors.accent,
                         shape = RoundedCornerShape(topStart = 10.dp, bottomEnd = 10.dp)
                     )
-                    .clickable {
+                    .clickable(enabled = !localIsAtCart) {
                         if (!localIsAtCart) {
                             localIsAtCart = true
                             onAddToCart()
@@ -144,8 +158,7 @@ fun ProductCard(
                     painter = if (localIsAtCart) painterResource(R.drawable.cart_white)
                     else painterResource(R.drawable.add_white),
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    alpha = 1f,
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }
@@ -162,7 +175,17 @@ private fun ProductCardPreview() {
         onAddToCart = {
             println("Добавлено в корзину")
         },
+        onClick = {
+            println("Карточка нажата")
+        },
         isAtCart = false,
-        product = ProductResponse("id", "PUMA CA PRO CLASSIC", "cat_id", 120.00f, "descr", true)
+        product = ProductResponse(
+            id = "id",
+            title = "PUMA CA PRO CLASSIC",
+            categoryId = "cat_id",
+            cost = 120.00f,
+            description = "descr",
+            isBestSeller = true
+        )
     )
 }
