@@ -142,7 +142,7 @@ fun ProfileScreen(
             )
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                 Text(
-                    text = stringResource(R.string.profile),
+                    text = "Профиль",
                     style = TypographyApplication.headingSemiBold16
                 )
             }
@@ -210,13 +210,13 @@ fun ProfileScreen(
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "$name $surname", style = TypographyApplication.bodyRegular20)
+        Text(text = "Emmanuel Oyiboke")
 
         if (isEdit) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 modifier = Modifier.clickable { onOpenCamera() },
-                text = stringResource(R.string.change_profile_picture),
+                text = "Изменить фото профиля",
                 color = CustomColors.accent,
                 style = TypographyApplication.bodyRegular12
             )
@@ -240,7 +240,7 @@ fun ProfileScreen(
         // Поля ввода
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(
-                text = stringResource(R.string.your_name),
+                text = "Имя",
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
@@ -258,7 +258,7 @@ fun ProfileScreen(
 
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(
-                text = stringResource(R.string.last_name),
+                text = "Фамилия",
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
@@ -276,7 +276,7 @@ fun ProfileScreen(
 
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(
-                text = stringResource(R.string.address),
+                text = "Адрес",
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
@@ -294,7 +294,7 @@ fun ProfileScreen(
 
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(
-                text = stringResource(R.string.phone_number),
+                text = "Телефон",
                 fontSize = 16.sp,
                 style = TypographyApplication.bodyMedium16
             )
@@ -332,7 +332,7 @@ fun ProfileScreen(
                             viewModel.showMessage("Заполните обязательные поля")
                         }
                     },
-                    text = stringResource(R.string.save_npw)
+                    text = "Сохранить"
                 )
                 Spacer(modifier = Modifier.width(20.dp))
             }

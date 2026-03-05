@@ -92,7 +92,7 @@ fun OutdoorCategoryScreen(
 
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                 Text(
-                    text = "Outdoor", // Заголовок по центру
+                    text = "Outdoor",
                     style = TypographyApplication.headingRegular32
                 )
             }
@@ -118,64 +118,65 @@ fun OutdoorCategoryScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Категории
+        // Текст "Категории"
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 20.dp)
         ) {
             Text(
                 text = "Категории",
                 style = TypographyApplication.bodyMedium16,
                 color = CustomColors.text
             )
+        }
 
-            Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(12.dp))
 
-            // Кнопки категорий в виде LazyRow
-            LazyRow(
-                modifier = Modifier.width(250.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(categories.size) { index ->
-                    val category = categories[index]
-                    val isSelected = selectedCategory == index
+        // Кнопки категорий - увеличенные как на макете
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(categories.size) { index ->
+                val category = categories[index]
+                val isSelected = selectedCategory == index
 
-                    Box(
-                        modifier = Modifier
-                            .clickable { selectedCategory = index }
-                            .background(
-                                color = if (isSelected) CustomColors.accent else CustomColors.block,
-                                shape = RoundedCornerShape(8.dp)
-                            )
-                            .height(32.dp)
-                            .width(if (category == "Tennis") 70.dp else 80.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = category,
-                            style = TypographyApplication.bodyRegular12.copy(
-                                color = if (isSelected) Color.White else Color.Black
-                            ),
-                            textAlign = TextAlign.Center
+                Box(
+                    modifier = Modifier
+                        .clickable { selectedCategory = index }
+                        .background(
+                            color = if (isSelected) CustomColors.accent else CustomColors.block,
+                            shape = RoundedCornerShape(12.dp)
                         )
-                    }
+                        .height(40.dp)
+                        .width(90.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = category,
+                        style = TypographyApplication.bodyMedium16.copy(
+                            color = if (isSelected) Color.White else Color.Black
+                        ),
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Сетка товаров (2 колонки)
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 16.dp, top = 8.dp)
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 16.dp)
         ) {
             items(dummyProducts) { product ->
                 DummyProductCard(
@@ -202,11 +203,11 @@ fun DummyProductCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .height(250.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .height(260.dp)
+            .clip(RoundedCornerShape(12.dp))
             .background(
                 CustomColors.block,
-                RoundedCornerShape(10.dp)
+                RoundedCornerShape(12.dp)
             )
             .clickable { onClick() }
     ) {
@@ -218,7 +219,7 @@ fun DummyProductCard(
         ) {
             Box(
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(28.dp)
                     .background(
                         color = CustomColors.background,
                         shape = CircleShape,
@@ -232,7 +233,7 @@ fun DummyProductCard(
                     painter = if (isFavourite) painterResource(R.drawable.heart_colored)
                     else painterResource(R.drawable.favorite),
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }
@@ -241,13 +242,13 @@ fun DummyProductCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(70.dp),
+                .height(80.dp),
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(R.drawable.sneakers_product_image),
                 contentDescription = null,
-                modifier = Modifier.size(117.dp, 70.dp)
+                modifier = Modifier.size(130.dp, 80.dp)
             )
         }
 
@@ -256,19 +257,18 @@ fun DummyProductCard(
         // BEST SELLER
         Text(
             text = if (product.isBestSeller) "BEST SELLER" else "",
-            style = TypographyApplication.bodyRegular12,
             color = CustomColors.accent,
-            modifier = Modifier.padding(horizontal = 10.dp)
+            modifier = Modifier.padding(horizontal = 12.dp)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         // Название товара
         Text(
             text = product.title,
             style = TypographyApplication.bodyRegular16,
-            color = CustomColors.hint,
-            modifier = Modifier.padding(horizontal = 10.dp),
+            color = CustomColors.text,
+            modifier = Modifier.padding(horizontal = 12.dp),
             maxLines = 1
         )
 
@@ -278,14 +278,14 @@ fun DummyProductCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 0.dp),
+                .padding(bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "₽$priceFormatted",
                 style = TypographyApplication.bodyRegular14,
                 color = CustomColors.text,
-                modifier = Modifier.padding(horizontal = 10.dp)
+                modifier = Modifier.padding(horizontal = 12.dp)
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -293,10 +293,10 @@ fun DummyProductCard(
             // Кнопка добавления в корзину
             Box(
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(36.dp)
                     .background(
                         color = CustomColors.accent,
-                        shape = RoundedCornerShape(topStart = 10.dp, bottomEnd = 10.dp)
+                        shape = RoundedCornerShape(topStart = 12.dp, bottomEnd = 12.dp)
                     )
                     .clickable {
                         if (!isInCart) {
@@ -309,7 +309,7 @@ fun DummyProductCard(
                     painter = if (isInCart) painterResource(R.drawable.cart_white)
                     else painterResource(R.drawable.add_white),
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }

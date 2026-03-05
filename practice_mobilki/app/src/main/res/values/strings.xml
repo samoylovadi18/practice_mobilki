@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">Shoe Store</string>
-    <string name="welcome" translatable="false">Welcome</string>
+    <string name="welcome">Добро пожаловать</string>
     <string name="start_journey">Let’s Start Journey</string>
     <string name="cool_collection">Smart, Gorgeous &amp; Fashionable Collection Explor Now</string>
     <string name="have_power" translatable="false">You Have the Power To</string>
