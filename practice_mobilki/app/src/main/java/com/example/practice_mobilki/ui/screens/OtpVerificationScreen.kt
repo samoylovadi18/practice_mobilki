@@ -32,7 +32,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,7 +48,12 @@ import com.example.practice_mobilki.ui.theme.TypographyApplication
 import kotlinx.coroutines.delay
 
 @Composable
-fun OtpVerificationScreen(modifier: Modifier = Modifier, viewModel: VerifyOTPViewModel, onVerifyOTPSuccess: () -> Unit, onBack: () -> Unit) {
+fun OtpVerificationScreen(
+    modifier: Modifier = Modifier,
+    viewModel: VerifyOTPViewModel,
+    onVerifyOTPSuccess: () -> Unit,
+    onBack: () -> Unit
+) {
     var cardInput1 by remember { mutableStateOf(value = "") }
     var cardInput2 by remember { mutableStateOf(value = "") }
     var cardInput3 by remember { mutableStateOf(value = "") }
@@ -67,7 +71,7 @@ fun OtpVerificationScreen(modifier: Modifier = Modifier, viewModel: VerifyOTPVie
         "my_app_preferences",
         Context.MODE_PRIVATE
     )
-    val userEmail = sharedPreferences.getString("userEmail", "Guest")
+    val userEmail = sharedPreferences.getString("userEmail", "Гость")
 
     LaunchedEffect(key1 = isTimerRunning) {
         if (isTimerRunning && remainingSeconds > 0) {
@@ -81,7 +85,7 @@ fun OtpVerificationScreen(modifier: Modifier = Modifier, viewModel: VerifyOTPVie
 
     LaunchedEffect(otpCode) {
         if (otpCode.length == 6) {
-            viewModel.verifyOTP(VerifyOtpRequest("email",userEmail.toString(), otpCode))
+            viewModel.verifyOTP(VerifyOtpRequest("email", userEmail.toString(), otpCode))
         }
     }
 
@@ -92,11 +96,16 @@ fun OtpVerificationScreen(modifier: Modifier = Modifier, viewModel: VerifyOTPVie
         }
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.White)
-        .padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Spacer(modifier = Modifier.height(24.dp))
+
+        // Кнопка назад
         Box(modifier = Modifier.fillMaxWidth()) {
             Box(
                 modifier = modifier
@@ -107,26 +116,57 @@ fun OtpVerificationScreen(modifier: Modifier = Modifier, viewModel: VerifyOTPVie
                     )
                     .clickable { onBack() },
                 contentAlignment = Alignment.Center
-
             ) {
                 Image(
                     painter = painterResource(R.drawable.back),
-                    contentDescription = null,
+                    contentDescription = "Назад",
                     modifier = Modifier.size(20.dp),
                     alpha = 1f
                 )
             }
         }
+
         Spacer(modifier = Modifier.weight(0.5f))
-        Text(text = stringResource(R.string.otp_verification), fontSize = 32.sp, style = TypographyApplication.headingRegular32)
+
+        // Заголовок
+        Text(
+            text = "OTP проверка",
+            fontSize = 32.sp,
+            style = TypographyApplication.headingRegular32
+        )
+
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = stringResource(R.string.check_code_verification),style = TypographyApplication.bodyRegular16, fontSize = 16.sp, color = CustomColors.hint, textAlign = TextAlign.Center)
+
+        // Описание
+        Text(
+            text = "Пожалуйста, проверьте свою \nэлектронную почту, чтобы увидеть код подтверждения",
+            style = TypographyApplication.bodyRegular16,
+            fontSize = 16.sp,
+            color = CustomColors.hint,
+            textAlign = TextAlign.Center
+        )
+
         Spacer(modifier = Modifier.weight(0.25f))
+
+        // Подпись "Код подтверждения"
         Box(modifier = Modifier.fillMaxWidth()) {
-            Text(text = stringResource(R.string.otp_code), style = TypographyApplication.bodyMedium16, fontSize = 16.sp, color = CustomColors.text, textAlign = TextAlign.Center, fontWeight = FontWeight.SemiBold)
+            Text(
+                text = "OTP Код",
+                style = TypographyApplication.bodyMedium16,
+                fontSize = 16.sp,
+                color = CustomColors.text,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.SemiBold
+            )
         }
+
         Spacer(modifier = Modifier.height(20.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Absolute.SpaceAround) {
+
+        // Поля для ввода кода
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
             OtpTextField(
                 modifier = Modifier.focusRequester(focusRequesters[0]),
                 value = cardInput1,
@@ -205,7 +245,10 @@ fun OtpVerificationScreen(modifier: Modifier = Modifier, viewModel: VerifyOTPVie
                 }
             )
         }
+
         Spacer(modifier = Modifier.height(14.dp))
+
+        // Таймер
         Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.fillMaxWidth()) {
             val formattedTime = remember(remainingSeconds) {
                 val minutes = remainingSeconds / 60
@@ -218,7 +261,10 @@ fun OtpVerificationScreen(modifier: Modifier = Modifier, viewModel: VerifyOTPVie
                 color = CustomColors.hint
             )
         }
+
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Кнопка повторной отправки
         if (!isTimerRunning) {
             TextButton(
                 onClick = {
@@ -233,13 +279,25 @@ fun OtpVerificationScreen(modifier: Modifier = Modifier, viewModel: VerifyOTPVie
                     viewModel.resendOTP(ResendOTPRequest(userEmail.toString(), "signup"))
                 }
             ) {
-                Text("Отправить код повторно")
+                Text(
+                    text = "Отправить заново",
+                    color = CustomColors.accent
+                )
             }
         }
+
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = if (isLoading) "Loading..." else "", color = CustomColors.hint)
+
+        // Индикатор загрузки
+        Text(
+            text = if (isLoading) "Загрузка..." else "",
+            color = CustomColors.hint
+        )
+
         Spacer(modifier = Modifier.weight(1f))
     }
+
+    // Диалог ошибок
     CustomAlertDialog(
         show = viewModel.showDialog.value,
         onDismiss = { viewModel.hideDialog() },

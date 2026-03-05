@@ -86,7 +86,7 @@ fun Home(
             )
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
                 Text(
-                    text = stringResource(R.string.explore),
+                    text = "Главная",
                     style = TypographyApplication.headingRegular32
                 )
             }
@@ -116,7 +116,7 @@ fun Home(
             CustomTextSearchField(
                 value = search,
                 onValueChange = { search = it },
-                placeholderText = stringResource(R.string.looking_for_shoes)
+                placeholderText = "Поиск"
             )
             Spacer(modifier = Modifier.width(14.dp))
             Box(
@@ -140,16 +140,10 @@ fun Home(
         Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.width(20.dp))
             Text(
-                text = stringResource(R.string.select_category),
+                text = "Категории",
                 style = TypographyApplication.bodyMedium16
             )
             Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = stringResource(R.string.see_all),
-                style = TypographyApplication.bodyRegular12,
-                color = CustomColors.accent,
-                modifier = Modifier.clickable { onNavigateToOutdoor() }
-            )
             Spacer(modifier = Modifier.width(20.dp))
         }
 
@@ -195,12 +189,12 @@ fun Home(
         Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.width(20.dp))
             Text(
-                text = stringResource(R.string.popular_shoes),
+                text = "Популярное",
                 style = TypographyApplication.bodyMedium16
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = stringResource(R.string.see_all),
+                text = "Все",
                 style = TypographyApplication.bodyRegular12,
                 color = CustomColors.accent,
                 modifier = Modifier.clickable { onNavigateToOutdoor() }
@@ -243,12 +237,12 @@ fun Home(
         Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.width(20.dp))
             Text(
-                text = stringResource(R.string.new_arrivals),
+                text = "Акции",
                 style = TypographyApplication.bodyMedium16
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = stringResource(R.string.see_all),
+                text = "Все",
                 style = TypographyApplication.bodyRegular12,
                 color = CustomColors.accent,
                 modifier = Modifier.clickable { onNavigateToOutdoor() }
@@ -279,7 +273,7 @@ fun Home(
                     .background(CustomColors.background),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Loading...")
+                Text(text = "Загрузка...")
             }
             return
         }
@@ -287,7 +281,7 @@ fun Home(
         // Нижняя навигация
         HomeWithBottomNavigation(
             selectedNumber = 0,
-            onHome = { /* Уже на главной */ },
+            onHome = { },
             onFavorite = onFavorite,
             onNotification = onNotification,
             onCart = onCart,

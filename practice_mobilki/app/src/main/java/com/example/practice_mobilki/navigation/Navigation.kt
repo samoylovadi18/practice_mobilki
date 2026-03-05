@@ -28,6 +28,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.practice_mobilki.ui.components.CustomAlertDialog
+import com.example.practice_mobilki.ui.screens.CreateNewPasswordScreen
 import com.example.practice_mobilki.ui.screens.DetailsScreen
 import com.example.practice_mobilki.ui.screens.FavoriteScreen
 import com.example.practice_mobilki.ui.screens.ForgotPasswordScreen
@@ -53,6 +54,7 @@ sealed class Screen(val route: String) {
     data object SignIn : Screen("sign_in")
     data object ForgotPassword : Screen("forgot_password")
     data object OTPVerification : Screen("otp_verification")
+    data object CreateNewPassword : Screen("create_new_password")
     data object Home : Screen("home")
     data object Profile : Screen("profile")
     data object Favorite : Screen("favorite")
@@ -173,19 +175,20 @@ fun AppNavHost(
             }
         }
 
-        // ЭКРАН ВОССТАНОВЛЕНИЯ ПАРОЛЯ
+        // ЭКРАН ВОССТАНОВЛЕНИЯ ПАРОЛЯ (без запросов к базе)
         composable(route = Screen.ForgotPassword.route) {
             ForgotPasswordScreen(
                 onBackClick = {
                     navController.popBackStack()
                 },
-                onNavigateToOTP = { email ->
-                    navController.navigate(Screen.OTPVerification.withArgs(email))
+                onNavigateToCreatePassword = {
+                    // Прямой переход на экран создания нового пароля
+                    navController.navigate(Screen.CreateNewPassword.route)
                 }
             )
         }
 
-        // ЭКРАН OTP VERIFICATION
+        // ЭКРАН OTP VERIFICATION (оставлен для регистрации)
         composable(
             route = "${Screen.OTPVerification.route}/{email}",
             arguments = listOf(
@@ -208,6 +211,30 @@ fun AppNavHost(
                 },
                 onBack = {
                     navController.popBackStack()
+                }
+            )
+
+            if (viewModel.showDialog.value) {
+                CustomAlertDialog(
+                    show = viewModel.showDialog.value,
+                    onDismiss = { viewModel.hideDialog() },
+                    text = viewModel.dialogText.value,
+                    title = viewModel.dialogTitle.value
+                )
+            }
+        }
+
+        // ЭКРАН СОЗДАНИЯ НОВОГО ПАРОЛЯ
+        composable(route = Screen.CreateNewPassword.route) {
+            CreateNewPasswordScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onSaveSuccess = {
+                    // После сохранения пароля переходим на экран входа
+                    navController.navigate(Screen.SignIn.route) {
+                        popUpTo(Screen.CreateNewPassword.route) { inclusive = true }
+                    }
                 }
             )
         }

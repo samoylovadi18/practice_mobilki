@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,7 +24,6 @@ import com.example.practice_mobilki.R
 import com.example.practice_mobilki.ui.components.BlockButton
 import com.example.practice_mobilki.ui.theme.CustomColors
 import com.example.practice_mobilki.ui.theme.TypographyApplication
-import kotlin.to
 
 @Composable
 fun YouHavePower(
@@ -54,7 +52,7 @@ fun YouHavePower(
         ) {
             Image(
                 painter = painterResource(R.drawable.sneakers_image2),
-                contentDescription = "sneakers",
+                contentDescription = "кроссовки",
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -62,15 +60,25 @@ fun YouHavePower(
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = stringResource(R.string.have_power),
+            text = "У вас есть сила,",
             style = TypographyApplication.headingRegular34,
-            color = CustomColors.block
+            color = CustomColors.block,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Text(
+            text = "чтобы",
+            style = TypographyApplication.headingRegular34,
+            color = CustomColors.block,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(13.dp))
 
         Text(
-            text = stringResource(R.string.many_plants),
+            text = "В вашей комнате много красивых и привлекательных растений",
             style = TypographyApplication.bodyRegular16,
             color = CustomColors.subTextLight,
             modifier = Modifier.width(315.dp),
@@ -81,14 +89,14 @@ fun YouHavePower(
 
         Image(
             painter = painterResource(R.drawable.pager3),
-            contentDescription = "page 3"
+            contentDescription = "страница 3"
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         BlockButton(
             onClick = onNext,
-            text = "Next",
+            text = "Далее",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)

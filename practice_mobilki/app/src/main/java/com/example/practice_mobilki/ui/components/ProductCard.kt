@@ -41,7 +41,7 @@ fun ProductCard(
     onCheckedChange: (Boolean) -> Unit,
     onAddToCart: () -> Unit,
     isAtCart: Boolean = false,
-    onClick: () -> Unit // Добавлен параметр для клика по карточке
+    onClick: () -> Unit
 ) {
     val priceFormatted = NumberFormat.getCurrencyInstance(Locale("ru", "RU"))
         .format(product.cost)

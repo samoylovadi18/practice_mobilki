@@ -62,7 +62,9 @@ fun StartJourney(
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = stringResource(R.string.start_journey),
+            text = "Начнем\n" +
+                    " путешествие",
+            textAlign = TextAlign.Center,
             style = TypographyApplication.headingRegular34,
             color = CustomColors.block
         )
@@ -70,7 +72,7 @@ fun StartJourney(
         Spacer(modifier = Modifier.height(13.dp))
 
         Text(
-            text = stringResource(R.string.cool_collection),
+            text = "Умная, великолепная и модная коллекция Изучите сейчас",
             style = TypographyApplication.bodyRegular16,
             color = CustomColors.subTextLight,
             modifier = Modifier.width(315.dp),
@@ -88,7 +90,7 @@ fun StartJourney(
 
         BlockButton(
             onClick = onNext,
-            text = stringResource(R.string.next),
+            text = "Далее",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
