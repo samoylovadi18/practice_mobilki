@@ -33,6 +33,7 @@ import com.example.practice_mobilki.ui.viewmodel.SignInViewModel
 import com.example.practice_mobilki.ui.viewmodel.SignUpViewModel
 
 // Класс для хранения маршрутов
+//
 sealed class Screen(val route: String) {
     data object SignUp : Screen("sign_up")
     data object SignIn : Screen("sign_in")
