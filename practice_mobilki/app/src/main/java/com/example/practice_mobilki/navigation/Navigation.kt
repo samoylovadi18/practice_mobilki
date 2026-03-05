@@ -45,6 +45,8 @@ import com.example.practice_mobilki.ui.viewmodel.SignUpViewModel
 import com.example.practice_mobilki.ui.viewmodel.VerifyOTPViewModel
 
 // Класс для хранения маршрутов
+
+//
 sealed class Screen(val route: String) {
     data object Onboarding : Screen("onboarding")
     data object SignUp : Screen("sign_up")
